@@ -22,7 +22,8 @@ const Register = () => {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', form);
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, form);
+
       setMessage(res.data.msg || 'Registration successful!');
       navigate('/select'); // redirect after success
     } catch (err) {
