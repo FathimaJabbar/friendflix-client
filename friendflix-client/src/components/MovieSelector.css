@@ -1,0 +1,50 @@
+.movie-selector {
+  padding: 2rem;
+  text-align: center;
+}
+
+.search-bar {
+  width: 60%;
+  padding: 0.5rem;
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+.movie-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.movie-card {
+  width: 120px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+.movie-card.selected {
+  border: 2px solid #4caf50;
+  transform: scale(1.1);
+}
+
+.movie-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.submit-btn {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
