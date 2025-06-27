@@ -43,17 +43,19 @@ export default function App() {
   }, [selectedMovies, user]);
 
   // Fetch friend matches when user or selectedMovies changes
-  useEffect(() => {
-    async function fetchMatches() {
-      if (user && selectedMovies.length) {
-        const matches = await findFriendMatches(user.uid, selectedMovies);
-        setFriendMatches(matches);
-      } else {
-        setFriendMatches([]);
-      }
+ useEffect(() => {
+  async function fetchMatches() {
+    if (user && selectedMovies.length) {
+      const matches = await findFriendMatches(user.uid, selectedMovies);
+      console.log('Matches received:', matches); // <-- Add this line for debugging
+      setFriendMatches(matches);
+    } else {
+      setFriendMatches([]);
     }
-    fetchMatches();
-  }, [user, selectedMovies]);
+  }
+  fetchMatches();
+}, [user, selectedMovies]);
+
 
   // Handlers
   const handleLogin = async () => {
