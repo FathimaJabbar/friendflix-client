@@ -30,6 +30,15 @@ export default function Chat({ user, friend }) {
       unsubscribePromise.then((unsub) => unsub && unsub());
     };
   }, [user, friend]);
+  
+  function Chat({ onBack, ...props }) {
+  return (
+    <div>
+      <button onClick={onBack}>Back</button>
+      {/* Existing chat UI */}
+    </div>
+  );
+}
 
   async function handleSend() {
     if (input.trim() === "" || !chatId) return;
