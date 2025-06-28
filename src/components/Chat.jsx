@@ -5,7 +5,7 @@ import {
   sendMessage,
 } from "../firebase";
 
-export default function Chat({ user, friend }) {
+export default function Chat({ user, friend, onBack }) {
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -30,15 +30,6 @@ export default function Chat({ user, friend }) {
       unsubscribePromise.then((unsub) => unsub && unsub());
     };
   }, [user, friend]);
-  
-  function Chat({ onBack, ...props }) {
-  return (
-    <div>
-      <button onClick={onBack}>Back</button>
-      {/* Existing chat UI */}
-    </div>
-  );
-}
 
   async function handleSend() {
     if (input.trim() === "" || !chatId) return;
@@ -49,6 +40,9 @@ export default function Chat({ user, friend }) {
 
   return (
     <div style={{ maxWidth: 600, display: "flex", flexDirection: "column", height: "80vh" }}>
+      <button onClick={onBack} style={{ marginBottom: 10 }}>
+        ← Back
+      </button>
       <h2>Chat with {friend.displayName}</h2>
       <div
         style={{

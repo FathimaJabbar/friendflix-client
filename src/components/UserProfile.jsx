@@ -1,19 +1,31 @@
-import React from 'react';
+import React from "react";
 
-function UserProfile({ user }) {
-  if (!user) return <p>Loading profile...</p>;
-
+export default function UserProfile({ user, selectedMovies = [], onBack }) {
   return (
-    <div>
-      <h2>{user.displayName || "Friend"}</h2>
-      <h3>Your Selected Movies:</h3>
-      <ul>
-        {user.selectedMovies?.map(movie => (
-          <li key={movie.id}>{movie.title}</li>
-        )) || <li>No movies selected</li>}
-      </ul>
+    <div className="user-profile-container">
+      <button onClick={onBack}>← Back</button>
+      <h2>{user.displayName}'s Profile</h2>
+      <h3>Selected Movies:</h3>
+      {selectedMovies.length === 0 ? (
+        <p>No movies selected.</p>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {selectedMovies.map((movie) => (
+            <li
+              key={movie.id}
+              style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}
+            >
+              <img
+                src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
+                alt={movie.title}
+                style={{ marginRight: "10px", borderRadius: "5px" }}
+              />
+              <span>{movie.title}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
-export default UserProfile;
