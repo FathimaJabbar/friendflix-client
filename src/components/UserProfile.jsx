@@ -1,28 +1,14 @@
 import React from "react";
 
-export default function UserProfile({ user, selectedMovies, onBack }) {
+export default function UserProfile({ user }) {
+  if (!user) return <p>No user logged in.</p>;
+
   return (
-    <div>
-      <h2>User Profile</h2>
-      <p>
-        <strong>Name:</strong> {user.displayName}
-      </p>
-      <p>
-        <strong>Email:</strong> {user.email}
-      </p>
-      <h3>Selected Movies:</h3>
-      {selectedMovies.length === 0 ? (
-        <p>No movies selected.</p>
-      ) : (
-        <ul>
-          {selectedMovies.map((movie) => (
-            <li key={movie.id}>{movie.title}</li>
-          ))}
-        </ul>
-      )}
-      <button onClick={onBack} style={{ marginTop: 20 }}>
-        ← Back
-      </button>
+    <div style={{ maxWidth: 600 }}>
+      <h2>Hello, {user.displayName || "Friend"}!</h2>
+      <p>Email: {user.email}</p>
+      <p>User ID: {user.uid}</p>
+      {/* Add more profile details here if you want */}
     </div>
   );
 }
