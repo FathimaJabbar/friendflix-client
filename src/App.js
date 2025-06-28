@@ -158,7 +158,9 @@ export default function App() {
     onBack={() => setPage("home")}
   />
 )}
-
+   <footer className="app-footer">
+      <p>© 2025 FriendFlix · Built with ❤️ by Fathima Jabbar</p>
+    </footer>
 
     </div>
   );
