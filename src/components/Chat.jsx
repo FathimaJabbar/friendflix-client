@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   createOrGetChat,
   listenToChatMessages,
   sendMessage,
 } from "../firebase";
+import "./Chat.css";
 
 export default function Chat({ user, friend, onBack }) {
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     if (!user || !friend) return;
@@ -31,68 +37,64 @@ export default function Chat({ user, friend, onBack }) {
     };
   }, [user, friend]);
 
-  async function handleSend() {
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  async function handleSend(e) {
+    e.preventDefault(); // Prevent page refresh if inside a form
     if (input.trim() === "" || !chatId) return;
 
-    await sendMessage(chatId, user.uid, input.trim());
-    setInput("");
+    try {
+      await sendMessage(chatId, user.uid, input.trim());
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Message failed to send. Your Firebase rules are blocking the messages subcollection!");
+    }
   }
 
   return (
-    <div style={{ maxWidth: 600, display: "flex", flexDirection: "column", height: "80vh" }}>
-      <button onClick={onBack} style={{ marginBottom: 10 }}>
-        ← Back
-      </button>
-      <h2>Chat with {friend.displayName}</h2>
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          border: "1px solid #ccc",
-          padding: 10,
-          marginBottom: 10,
-          borderRadius: 5,
-          backgroundColor: "#f9f9f9",
-        }}
-      >
-        {messages.length === 0 && <p>No messages yet.</p>}
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            style={{
-              textAlign: msg.senderId === user.uid ? "right" : "left",
-              margin: "5px 0",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                padding: "8px 12px",
-                borderRadius: 15,
-                backgroundColor: msg.senderId === user.uid ? "#4caf50" : "#ddd",
-                color: msg.senderId === user.uid ? "white" : "black",
-                maxWidth: "70%",
-                wordWrap: "break-word",
-              }}
-            >
-              {msg.text}
-            </span>
-          </div>
-        ))}
+    <div className="chat-container">
+      <div className="chat-header">
+        <button className="btn-secondary" onClick={onBack}>
+          ← Back
+        </button>
+        <h2>{friend.displayName}</h2>
       </div>
 
-      <div style={{ display: "flex" }}>
+      <div className="chat-messages glass-panel">
+        {messages.length === 0 && (
+          <p style={{ textAlign: "center", color: "var(--text-secondary)" }}>
+            Say hi to start the conversation!
+          </p>
+        )}
+        {messages.map((msg) => {
+          const isSent = msg.senderId === user.uid;
+          return (
+            <div
+              key={msg.id}
+              className={`message-wrapper ${isSent ? "sent" : "received"}`}
+            >
+              <div className="message-bubble">{msg.text}</div>
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <form className="chat-input-area" onSubmit={handleSend}>
         <input
           type="text"
+          className="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          style={{ flex: 1, padding: 10, borderRadius: 5, border: "1px solid #ccc" }}
+          placeholder="Message..."
         />
-        <button onClick={handleSend} style={{ marginLeft: 10, padding: "10px 15px" }}>
+        <button type="submit" className="btn-primary chat-send-btn">
           Send
         </button>
-      </div>
+      </form>
     </div>
   );
 }

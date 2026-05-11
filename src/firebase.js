@@ -95,16 +95,6 @@ async function findFriendMatches(userId, selectedMovies) {
       });
     }
   });
-
-  // Add yourself as a match to everyone (only if not the current user)
-  if (userId !== "jPvC75Bb8tZ4OJHPPXiu2tYJaVJ2") {
-    matches.push({
-      userId: "jPvC75Bb8tZ4OJHPPXiu2tYJaVJ2",
-      displayName: "Fathima Jabbar",
-      commonMovies: [], // or list your movies here if you want
-    });
-  }
-
   return matches;
 }
 
