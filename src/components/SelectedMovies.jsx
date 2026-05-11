@@ -3,8 +3,10 @@ import "./SelectedMovies.css";
 
 export default function SelectedMovies({ movies, onBack }) {
   return (
-    <div>
-      <h2>Your Selected Movies</h2>
+    <div className="selected-movies-container page-wrapper">
+      <div className="selector-top" style={{ marginBottom: "20px" }}>
+        <h2>Your Library 🎬</h2>
+      </div>
       <div className="movies-grid">
         {movies.map((movie) => (
           <div key={movie.id} className="movie-item">
@@ -16,7 +18,7 @@ export default function SelectedMovies({ movies, onBack }) {
           </div>
         ))}
       </div>
-      <button onClick={onBack} style={{ marginTop: "1rem" }}>
+      <button className="btn-secondary" onClick={onBack} style={{ marginTop: "2rem" }}>
         ← Back
       </button>
     </div>

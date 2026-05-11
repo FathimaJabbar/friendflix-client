@@ -1,0 +1,131 @@
+.create-group-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 40px;
+  text-align: center;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.create-group-container h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.input-wrapper {
+  margin-bottom: 40px;
+}
+
+.group-name-input {
+  width: 100%;
+  padding: 18px 25px;
+  font-size: 1.2rem;
+  border-radius: 16px;
+  border: 1px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  transition: all 0.3s ease;
+}
+
+.group-name-input:focus {
+  outline: none;
+  border-color: rgba(0, 198, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 198, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.friends-selection-list {
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.friends-selection-list h3 {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.friends-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.friends-grid::-webkit-scrollbar {
+  width: 5px;
+}
+.friends-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.friend-select-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.friend-select-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 198, 255, 0.3);
+  transform: translateX(5px);
+}
+
+.friend-select-item.selected {
+  background: rgba(0, 198, 255, 0.1);
+  border-color: rgba(0, 198, 255, 0.5);
+}
+
+.friend-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.friend-info .name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.friend-info .badge {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.checkbox {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.friend-select-item.selected .checkbox {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: white;
+}
+
+.create-group-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}

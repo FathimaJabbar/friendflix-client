@@ -1,0 +1,87 @@
+.lounges-container { max-width: 900px; margin: 0 auto; padding: 24px 0; }
+
+.lounges-header { margin-bottom: 28px; }
+.lounges-header h2 { font-size: 2rem; font-weight: 800; margin: 0 0 6px; }
+.lounges-header p { color: var(--text-secondary); margin: 0; }
+
+.lounges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.lounge-card {
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.35s ease;
+}
+.lounge-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 45px rgba(0,0,0,0.6); }
+
+.lounge-poster-wrap {
+  position: relative;
+  aspect-ratio: 2/3;
+  width: 100%;
+}
+.lounge-poster {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.lounge-card:hover .lounge-poster { transform: scale(1.06); }
+
+.lounge-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  transition: all 0.3s ease;
+}
+
+.lounge-live-badge {
+  align-self: flex-start;
+  background: rgba(255, 60, 60, 0.85);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  animation: pulse 2s infinite;
+}
+
+.lounge-overlay-content { }
+.lounge-overlay-content h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.lounge-enter-btn {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+  text-align: center;
+}
+.lounge-card:hover .lounge-enter-btn {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 16px var(--glow-blue);
+}

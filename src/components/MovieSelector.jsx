@@ -4,92 +4,90 @@ import "./MovieSelector.css";
 
 const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
 
-export default function MovieSelector({ onSelectionComplete }) {
-  const [movies, setMovies] = useState([]);
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState([]);
+export default function MovieSelector({ onSelectionComplete, initialSelected = [] }) {
+  const [movies, setMovies]   = useState([]);
+  const [query, setQuery]     = useState("");
+  const [selected, setSelected] = useState(initialSelected);
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
+  useEffect(() => { fetchMovies(); }, []);
 
   const fetchMovies = async (searchTerm) => {
     try {
-      const endpoint = searchTerm
+      const url = searchTerm
         ? `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${searchTerm}`
         : `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&page=1`;
-
-      const res = await axios.get(endpoint);
-      setMovies(res.data.results);
-    } catch (error) {
-      console.error("TMDB API Error:", error);
-      alert("Network Error: Could not reach the movie database. If you are in India, your ISP (like Jio) might be blocking TMDB. Try using a VPN or changing your DNS!");
+      const res = await axios.get(url);
+      setMovies(res.data.results.filter((m) => m.poster_path));
+    } catch {
+      alert("Network Error: Could not reach TMDB. If you're in India, try a VPN or change DNS to 8.8.8.8.");
     }
   };
 
-  const handleSearch = (e) => {
-    setQuery(e.target.value);
-    fetchMovies(e.target.value);
-  };
+  const handleSearch = (e) => { setQuery(e.target.value); fetchMovies(e.target.value); };
 
   const toggleSelect = (movie) => {
-    if (selected.find((m) => m.id === movie.id)) {
-      setSelected(selected.filter((m) => m.id !== movie.id));
-    } else {
-      setSelected([...selected, movie]);
-    }
-  };
-
-  const handleSubmit = () => {
-    if (selected.length >= 3) {
-      const user = JSON.parse(localStorage.getItem("user")) || {};
-      const updatedUser = {
-        ...user,
-        selectedMovies: selected.map((movie) => movie.title),
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      onSelectionComplete(selected);
-    } else {
-      alert("Please select at least 3 movies to continue.");
-    }
+    setSelected((prev) =>
+      prev.find((m) => m.id === movie.id)
+        ? prev.filter((m) => m.id !== movie.id)
+        : [...prev, movie]
+    );
   };
 
   return (
-    <div className="movie-selector-container">
-      <h2>Select at least 3 movies you've watched</h2>
-      <input
-        type="text"
-        className="search-input"
-        placeholder="Search for a movie..."
-        value={query}
-        onChange={handleSearch}
-      />
+    <div className="selector-wrapper page-wrapper">
+      <div className="selector-top">
+        <h2>Pick Your Movies 🎬</h2>
+        <p>Select at least 3 movies to find matching friends</p>
+        <div className="selector-search-wrap">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            className="selector-search"
+            placeholder="Search any movie..."
+            value={query}
+            onChange={handleSearch}
+          />
+        </div>
+      </div>
+
       <div className="movie-grid">
         {movies.map((movie) => {
-          const isSelected = selected.find((m) => m.id === movie.id);
+          const isSelected = !!selected.find((m) => m.id === movie.id);
           return (
             <div
               key={movie.id}
-              onClick={() => toggleSelect(movie)}
               className={`movie-card ${isSelected ? "selected" : ""}`}
+              onClick={() => toggleSelect(movie)}
             >
               <img
                 className="movie-poster"
-                src={
-                  movie.poster_path
-                    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                    : "https://via.placeholder.com/300x450?text=No+Image"
-                }
+                src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
                 alt={movie.title}
               />
-              <h4>{movie.title}</h4>
+              {isSelected && <div className="selected-overlay">✓</div>}
+              <div className="movie-title-bar">{movie.title}</div>
             </div>
           );
         })}
       </div>
-      <button className="btn-primary submit-btn" onClick={handleSubmit}>
-        Continue ➞
-      </button>
+
+      {/* Sticky bottom bar */}
+      <div className="selector-bottom-bar">
+        <span className="selection-count">
+          {selected.length} selected {selected.length >= 3 ? "✓" : `(need ${3 - selected.length} more)`}
+        </span>
+        <button
+          className="btn-primary"
+          onClick={() => {
+            if (selected.length >= 3) onSelectionComplete(selected);
+            else alert("Please select at least 3 movies.");
+          }}
+          disabled={selected.length < 3}
+          style={{ borderRadius: "28px", padding: "12px 30px", opacity: selected.length < 3 ? 0.5 : 1 }}
+        >
+          Continue →
+        </button>
+      </div>
     </div>
   );
 }
