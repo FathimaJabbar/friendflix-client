@@ -4,12 +4,16 @@ FriendFlix is a modern, social movie-discovery platform designed to bring movie 
 
 ## ✨ Features
 
-- **Movie Discovery & Swiping:** Browse through movies, select your favorites, and build your personalized watchlist.
+- **Movie Discovery & Swiping:** Browse through movies powered by the **TMDB API**, select your favorites, and build your personalized watchlist.
 - **Friend Matching:** Discover and connect with other users based on your shared movie preferences.
 - **Real-time Chat:** Seamless direct messaging with friends and interactive group chats.
 - **Custom User Profiles:** Manage your profile, update your avatar, and showcase your top movie picks.
 - **Movie Lounges & Groups:** Create dedicated groups to discuss your favorite genres or plan watch parties.
 - **Premium UI/UX:** A state-of-the-art dark theme featuring glassmorphism, dynamic micro-animations, and a highly responsive design.
+
+## 🔗 Live Demo
+
+Check out the live application here: **[https://friendflix-nu.vercel.app/](https://friendflix-nu.vercel.app/)**
 
 ## 🛠️ Technology Stack
 
@@ -17,7 +21,8 @@ FriendFlix is a modern, social movie-discovery platform designed to bring movie 
 - **Animations:** Framer Motion
 - **Styling:** Custom Vanilla CSS (Glassmorphism & Dark Mode)
 - **Backend / Database:** Firebase (Authentication, Firestore, Storage)
-- **API Requests:** Axios
+- **Movie Data API:** [TMDB (The Movie Database)](https://www.themoviedb.org/)
+- **API Client:** Axios
 - **Build Tool:** Create React App (with CRACO)
 
 ## 🚀 Getting Started
