@@ -17,12 +17,14 @@ Check out the live application here: **[https://friendflix-nu.vercel.app/](https
 
 ## 🛠️ Technology Stack
 
-- **Frontend Framework:** React 18
-- **Animations:** Framer Motion
-- **Styling:** Custom Vanilla CSS (Glassmorphism & Dark Mode)
-- **Backend / Database:** Firebase (Authentication, Firestore, Storage)
+- **Frontend:** React 18
+- **Backend API:** Node.js & Express (Hosted on Railway)
+- **Primary Database:** MongoDB (MERN Stack)
+- **Real-time Social Features:** Firebase (Firestore, Authentication, Storage)
 - **Movie Data API:** [TMDB (The Movie Database)](https://www.themoviedb.org/)
 - **API Client:** Axios
+- **Animations:** Framer Motion
+- **Styling:** Custom Vanilla CSS (Glassmorphism & Dark Mode)
 - **Build Tool:** Create React App (with CRACO)
 
 ## 🚀 Getting Started
