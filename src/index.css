@@ -14,7 +14,7 @@
   --danger-color: #ff5252;
   --font-family: 'Outfit', sans-serif;
   --nav-height: 70px;
-  --header-height: 68px;
+  --header-height: 60px;
   --radius: 16px;
   --radius-lg: 22px;
   --radius-xl: 28px;
@@ -24,22 +24,35 @@
   --grad-gold: linear-gradient(135deg, #f7971e, #ffd200);
   --grad-aurora: linear-gradient(135deg, #a18cd1, #fbc2eb);
   --grad-emerald: linear-gradient(135deg, #00e676, #00b0ff);
+  /* Safe area insets for notched phones */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  /* Prevent iOS rubber-band overscroll on body */
+  height: -webkit-fill-available;
+}
 
 body {
-  margin: 0;
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   background: #09090f;
   background-image:
     radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 72, 255, 0.12) 0%, transparent 60%),
     radial-gradient(ellipse 60% 50% at 80% 90%, rgba(0, 198, 255, 0.08) 0%, transparent 60%),
     radial-gradient(ellipse 70% 70% at 50% 50%, rgba(48, 43, 99, 0.25) 0%, transparent 70%);
   background-attachment: fixed;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 /* ── Animations ── */
@@ -70,7 +83,7 @@ body {
 
 .page-wrapper {
   animation: pageIn 0.38s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  padding-bottom: calc(var(--nav-height) + 24px);
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 24px);
 }
 
 /* ── Scrollbar ── */
@@ -91,6 +104,7 @@ body {
 .glass-card {
   background: rgba(255,255,255,0.035);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: var(--radius);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -111,6 +125,8 @@ button {
   border: none;
   font-weight: 600;
   letter-spacing: 0.2px;
+  /* Prevent double-tap zoom on iOS */
+  touch-action: manipulation;
 }
 .btn-primary {
   background: var(--accent-gradient);
@@ -161,3 +177,11 @@ button {
 .empty-state .empty-icon { font-size: 2.8rem; margin-bottom: 16px; opacity: 0.45; }
 .empty-state h3 { margin: 0 0 8px; font-size: 1.15rem; color: var(--text-primary); }
 .empty-state p  { margin: 0; font-size: 0.9rem; }
+
+/* ── Responsive typography ── */
+@media (max-width: 480px) {
+  :root {
+    --header-height: 56px;
+    --nav-height: 64px;
+  }
+}

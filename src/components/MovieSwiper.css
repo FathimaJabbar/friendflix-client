@@ -2,7 +2,7 @@
   max-width: 600px;
   margin: 0 auto;
   text-align: center;
-  padding: 20px;
+  padding: 16px 16px 0;
   animation: fadeIn 0.8s ease forwards;
 }
 
@@ -10,19 +10,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .swiper-hint {
   color: var(--text-secondary);
-  font-size: 1.1rem;
-  margin-bottom: 30px;
+  font-size: clamp(0.88rem, 3vw, 1.1rem);
+  margin-bottom: 20px;
   font-weight: 300;
 }
 
 .card-stack {
   position: relative;
-  height: 520px;
+  height: clamp(380px, 62vh, 520px);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -31,18 +31,17 @@
 
 .swipe-card {
   position: absolute;
-  width: 320px;
-  height: 480px;
+  width: min(320px, 88vw);
+  height: clamp(340px, 56vh, 480px);
   cursor: grab;
   overflow: hidden;
   border-radius: 24px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  touch-action: none; /* allow drag events on touch */
 }
 
-.swipe-card:active {
-  cursor: grabbing;
-}
+.swipe-card:active { cursor: grabbing; }
 
 .card-poster {
   width: 100%;
@@ -53,9 +52,9 @@
 }
 
 .card-info {
-  padding: 20px;
+  padding: 16px 18px;
   text-align: left;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.25);
   height: 20%;
   display: flex;
   flex-direction: column;
@@ -64,7 +63,7 @@
 
 .card-info h3 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 4vw, 1.3rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -72,24 +71,26 @@
 }
 
 .card-info p {
-  margin: 5px 0 0;
+  margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: clamp(0.82rem, 3vw, 1rem);
 }
 
 .swiper-controls {
   display: flex;
   justify-content: center;
-  gap: 40px;
-  margin-top: 40px;
+  gap: clamp(20px, 8vw, 40px);
+  margin-top: 28px;
 }
 
 .skip-btn {
-  font-size: 1.2rem;
-  padding: 15px 35px;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  padding: 14px clamp(20px, 7vw, 35px);
   color: #ff4d4d;
   border-radius: 50px;
   border: 1px solid rgba(255, 77, 77, 0.3);
+  background: transparent;
+  touch-action: manipulation;
 }
 
 .skip-btn:hover {
@@ -98,13 +99,13 @@
 }
 
 .like-btn {
-  font-size: 1.2rem;
-  padding: 15px 35px;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  padding: 14px clamp(20px, 7vw, 35px);
   background: linear-gradient(135deg, #00e676, #00c853);
   border-radius: 50px;
   box-shadow: 0 5px 15px rgba(0, 230, 118, 0.3);
+  touch-action: manipulation;
 }
 
-.like-btn:hover {
-  box-shadow: 0 8px 25px rgba(0, 230, 118, 0.5);
-}
+.like-btn:hover  { box-shadow: 0 8px 25px rgba(0, 230, 118, 0.5); }
+.like-btn:active { transform: scale(0.96); }

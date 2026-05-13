@@ -5,21 +5,25 @@
   transform: translateX(-50%);
   width: 100%;
   max-width: 900px;
-  height: var(--nav-height);
+  /* Add safe-area padding for iPhone home indicator */
+  padding-bottom: var(--safe-bottom);
+  height: calc(var(--nav-height) + var(--safe-bottom));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-around;
-  background: rgba(9, 9, 15, 0.92);
+  background: rgba(9, 9, 15, 0.94);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   z-index: 100;
-  padding: 0 8px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 4px;
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
 }
 
 .bottom-nav.hidden {
-  transform: translateX(-50%) translateY(100%);
+  transform: translateX(-50%) translateY(110%);
   opacity: 0;
   pointer-events: none;
 }
@@ -29,27 +33,28 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   background: none;
   border: none;
-  padding: 8px 16px;
-  border-radius: 16px;
+  padding: 8px 10px;
+  border-radius: 14px;
   cursor: pointer;
   position: relative;
   flex: 1;
   transition: all 0.22s ease;
   min-width: 0;
+  touch-action: manipulation;
 }
 
 .nav-icon {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   line-height: 1;
   transition: transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: block;
 }
 
 .nav-label {
-  font-size: 0.68rem;
+  font-size: clamp(0.6rem, 2vw, 0.68rem);
   font-weight: 600;
   letter-spacing: 0.3px;
   color: var(--text-muted);
@@ -58,8 +63,9 @@
   font-family: var(--font-family);
 }
 
-.nav-item:hover .nav-icon { transform: translateY(-2px) scale(1.1); }
+.nav-item:hover .nav-icon  { transform: translateY(-2px) scale(1.1); }
 .nav-item:hover .nav-label { color: var(--text-secondary); }
+.nav-item:active            { transform: scale(0.94); }
 
 .nav-item.active .nav-label {
   background: var(--accent-gradient);
@@ -74,6 +80,12 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--accent-gradient);
   background: #00c6ff;
+}
+
+/* Slightly larger tap area on mobile */
+@media (max-width: 380px) {
+  .nav-item { padding: 8px 6px; }
+  .nav-icon { font-size: 1.2rem; }
+  .nav-label { font-size: 0.58rem; }
 }

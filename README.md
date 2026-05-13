@@ -1,70 +1,66 @@
-# Getting Started with Create React App
+# FriendFlix 🎬🍿
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+FriendFlix is a modern, social movie-discovery platform designed to bring movie lovers together. Built with a sleek, premium glassmorphic UI, FriendFlix allows users to find new movies, match with friends who share similar tastes, and chat in real-time.
 
-## Available Scripts
+## ✨ Features
+
+- **Movie Discovery & Swiping:** Browse through movies, select your favorites, and build your personalized watchlist.
+- **Friend Matching:** Discover and connect with other users based on your shared movie preferences.
+- **Real-time Chat:** Seamless direct messaging with friends and interactive group chats.
+- **Custom User Profiles:** Manage your profile, update your avatar, and showcase your top movie picks.
+- **Movie Lounges & Groups:** Create dedicated groups to discuss your favorite genres or plan watch parties.
+- **Premium UI/UX:** A state-of-the-art dark theme featuring glassmorphism, dynamic micro-animations, and a highly responsive design.
+
+## 🛠️ Technology Stack
+
+- **Frontend Framework:** React 18
+- **Animations:** Framer Motion
+- **Styling:** Custom Vanilla CSS (Glassmorphism & Dark Mode)
+- **Backend / Database:** Firebase (Authentication, Firestore, Storage)
+- **API Requests:** Axios
+- **Build Tool:** Create React App (with CRACO)
+
+## 🚀 Getting Started
+
+Follow these steps to set up the project locally:
+
+### Prerequisites
+Make sure you have Node.js and npm installed on your machine.
+
+### Installation
+
+1. **Clone the repository** (if you haven't already):
+   ```bash
+   git clone <repository-url>
+   cd friendflix-client
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup:**
+   Ensure your Firebase credentials are set up. Create a `.env` file in the root directory and add your Firebase configuration variables (e.g., `REACT_APP_FIREBASE_API_KEY`, etc.).
+
+4. **Start the development server:**
+   ```bash
+   npm start
+   ```
+   The app will automatically open in your browser at [http://localhost:3000](http://localhost:3000).
+
+## 📂 Project Structure
+
+- `src/components/`: Contains all the reusable React components (Navbar, Chat, MovieSwiper, Toast, etc.) along with their dedicated CSS files.
+- `src/pages/`: Main application views (Home, Login, Register, MatchedFriends).
+- `src/firebase.js`: Firebase initialization and configuration.
+
+## 📜 Available Scripts
 
 In the project directory, you can run:
+- `npm start`: Runs the app in development mode.
+- `npm test`: Launches the test runner.
+- `npm run build`: Builds the app for production to the `build` folder.
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+*Designed and built for an immersive movie-sharing experience.*
