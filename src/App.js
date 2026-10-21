@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import axios from "axios";
 import {
   auth, onAuthStateChanged, signInWithGoogle, logout,
   saveSelectedMovies, findFriendMatches, listenToAllUserChats,
@@ -10,13 +11,15 @@ import UserProfile     from "./components/UserProfile";
 import Chat            from "./components/Chat";
 import MovieLounges    from "./components/MovieLounges";
 import GroupChat       from "./components/GroupChat";
-import MovieSwiper     from "./components/MovieSwiper";
+import MovieSwiper     from "./components/MovieSwiper";     
 import CreateGroup     from "./components/CreateGroup";
 import UserGroups      from "./components/UserGroups";
 import Toast           from "./components/Toast";
 import Navbar          from "./components/Navbar";
 import Inbox           from "./components/Inbox";
 import "./App.css";
+
+const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
 
 export default function App() {
   const [user,              setUser]              = useState(null);
@@ -26,6 +29,8 @@ export default function App() {
     catch { return []; }
   });
   const [friendMatches,     setFriendMatches]     = useState([]);
+  const [trendingMovies,    setTrendingMovies]    = useState([]);
+  const [topRatedMovies,    setTopRatedMovies]    = useState([]);
   const [activeChatFriend,  setActiveChatFriend]  = useState(null);
   const [activeGroupLounge, setActiveGroupLounge] = useState(null);
   const [activeCustomGroup, setActiveCustomGroup] = useState(null);
@@ -41,6 +46,19 @@ export default function App() {
     });
   }, []);
 
+  /* ── Fetch Real Movies for Front Page ── */
+  useEffect(() => {
+    axios
+      .get(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&page=1`)
+      .then((res) => setTrendingMovies(res.data.results || []))
+      .catch(console.error);
+
+    axios
+      .get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${TMDB_API_KEY}&page=1`)
+      .then((res) => setTopRatedMovies(res.data.results || []))
+      .catch(console.error);
+  }, []);
+
   /* ── Notification listener ── */
   useEffect(() => {
     if (!user) { prevChatsRef.current = {}; return; }
@@ -54,7 +72,7 @@ export default function App() {
         const lastTime = chat.lastMessageTime.toMillis?.() || 0;
         const prevTime = prevChatsRef.current[chat.id];
         if (prevTime && lastTime > prevTime) {
-          const chatName = chat.name || (chat.isCustomGroup ? "Group" : "Friend");
+          const chatName = chat.name || (chat.isCustomGroup ? "Group" : "Direct Message");
           setNotification(`${chatName}: ${chat.lastMessage}`);
         }
         prevChatsRef.current[chat.id] = lastTime;
@@ -63,13 +81,13 @@ export default function App() {
     return () => unsub();
   }, [user]);
 
-  /* ── Save movies ── */
+  /* ── Save movies to localStorage and Firestore ── */
   useEffect(() => {
     localStorage.setItem("selectedMovies", JSON.stringify(selectedMovies));
     if (user) saveSelectedMovies(selectedMovies).catch(console.error);
   }, [selectedMovies, user]);
 
-  /* ── Fetch matches ── */
+  /* ── Fetch matches from Firestore ── */
   useEffect(() => {
     if (user && selectedMovies.length) {
       findFriendMatches(user.uid, selectedMovies)
@@ -80,46 +98,80 @@ export default function App() {
     }
   }, [user, selectedMovies, refreshTrigger]);
 
-  /* ── Helpers ── */
   const handleLogin  = () => signInWithGoogle().catch((e) => alert("Sign-in failed: " + e.message));
   const handleLogout = async () => {
     await logout();
     setPage("home"); setSelectedMovies([]); setFriendMatches([]);
     setActiveChatFriend(null); setActiveGroupLounge(null); setActiveCustomGroup(null);
   };
-  const addSwipedMovie = (movie) =>
-    setSelectedMovies((prev) => prev.find((m) => m.id === movie.id) ? prev : [...prev, movie]);
 
-  const openPrivateChat = (friend) => { setActiveChatFriend(friend); setPage("chat"); };
+  /* ── Dynamic Move to Library (Instantly removes from recommendation rails) ── */
+  const handleAddMovie = (movie) => {
+    const alreadySelected = selectedMovies.some((m) => String(m.id) === String(movie.id));
+    if (!alreadySelected) {
+      setSelectedMovies((prev) => [movie, ...prev]);
+      setNotification(`Added "${movie.title}" to your library.`);
+    }
+  };
+
+  /* Normalizes both friend.uid and friend.userId to prevent undefined chat document paths */
+  const openPrivateChat = (friend) => {
+    setActiveChatFriend({
+      uid: friend.uid || friend.userId,
+      displayName: friend.displayName || "Friend",
+      photoURL: friend.photoURL || "",
+    });
+    setPage("chat");
+  };
+
   const openGroupLounge = (movie)  => { setActiveGroupLounge(movie); setPage("groupChatLounge"); };
   const openCustomGroup = (group)  => { setActiveCustomGroup(group); setPage("groupChatCustom"); };
 
   const navigate = (target) => {
-    // reset chat state when leaving chat pages
     if (target !== "chat") setActiveChatFriend(null);
     if (target !== "groupChatLounge") setActiveGroupLounge(null);
     if (target !== "groupChatCustom") setActiveCustomGroup(null);
     setPage(target);
   };
 
-  /* ── Render ── */
+  const heroMovie = selectedMovies[0] || trendingMovies[0] || {
+    title: "Interstellar",
+    backdrop_path: "/xJHokMbljvjADYdit5fK5VQsXEG.jpg",
+    overview: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+  };
+
+  /* Exclude movies already in library so they immediately vacate recommendation rails */
+  const visibleTrending = trendingMovies.filter(
+    (movie) => !selectedMovies.some((m) => String(m.id) === String(movie.id))
+  );
+
+  const visibleTopRated = topRatedMovies.filter(
+    (movie) => !selectedMovies.some((m) => String(m.id) === String(movie.id))
+  );
+
   return (
     <div className="app-container">
-      {/* ── Header ── */}
+      {/* ── App Header ── */}
       <header className="app-header">
-        <h1 className="logo" onClick={() => navigate("home")} style={{ cursor: "pointer" }}>
-          FriendFlix
-        </h1>
+        <div className="brand-group" onClick={() => navigate("home")}>
+          <span className="brand-pillar"></span>
+          <h1 className="logo">FRIENDFLIX</h1>
+        </div>
+
         {user ? (
           <div className="header-right">
+            <button className="icon-btn-header" onClick={() => navigate("inbox")} title="Direct Messages">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+            </button>
             <img
               src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=random`}
-              alt="avatar"
+              alt="Avatar"
               className="header-avatar"
               onClick={() => navigate("profile")}
               title="Your Profile"
             />
-            <button className="signout-btn" onClick={handleLogout}>Sign Out</button>
           </div>
         ) : (
           <button className="signin-button" onClick={handleLogin}>Sign In</button>
@@ -128,87 +180,200 @@ export default function App() {
 
       <Toast message={notification} onClose={() => setNotification(null)} />
 
-      {/* ── Pages ── */}
+      {/* ── Landing Page ── */}
       {!user && (
         <div className="landing">
-          <div className="landing-eyebrow">🎬 Find your movie tribe</div>
+          <div className="landing-badge">CINEMATIC SOCIAL NETWORK</div>
           <h2 className="landing-title">
-            Make friends through<br /><span className="accent">movies you love</span>
+            Watch together. <br /><span className="accent">Match through cinema.</span>
           </h2>
           <p className="landing-subtitle">
-            FriendFlix matches you with people who share your cinematic taste — then gives you lounges, group chats, and more to connect.
+            Match with people who share your film DNA, jump into real-time fan lounges, and coordinate screenings seamlessly.
           </p>
           <button className="landing-cta" onClick={handleLogin}>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/480px-Google_%22G%22_logo.svg.png" alt="G" />
-            Continue with Google
+            Sign In with Google
           </button>
-          <div className="landing-features">
-            {["🎯 Smart Matching","💬 Group Chats","🛋️ Movie Lounges","🔥 Swipe Mode","📅 Movie Nights","🔔 Live Alerts"].map((f) => (
-              <div key={f} className="feature-pill">{f}</div>
-            ))}
-          </div>
         </div>
       )}
 
+      {/* ── Post-Login Dashboard ── */}
       {user && page === "home" && (
         <div className="home-dashboard">
-          <div className="dashboard-greeting">
-            <h2>Hey, {user.displayName?.split(" ")[0]} 👋</h2>
-            <p>Ready to find your next movie buddy?</p>
+          
+          {/* Top Matches Tray */}
+          <div className="stories-section">
+            <div className="section-header">
+              <h3>Taste Matches</h3>
+              <span className="section-link" onClick={() => navigate("friendMatches")}>
+                View All ({friendMatches.length})
+              </span>
+            </div>
+
+            <div className="stories-scroll">
+              {friendMatches.length === 0 ? (
+                <div className="empty-story-pill" onClick={() => navigate("select")}>
+                  <div className="add-plus">+</div>
+                  <span>Pick 3 films to unlock your matches</span>
+                </div>
+              ) : (
+                friendMatches.map((friend) => (
+                  <div 
+                    key={friend.userId || friend.uid} 
+                    className="story-item"
+                    onClick={() => openPrivateChat(friend)}
+                  >
+                    <div className="avatar-ring">
+                      <img 
+                        src={friend.photoURL || `https://ui-avatars.com/api/?name=${friend.displayName}&background=random`} 
+                        alt={friend.displayName} 
+                      />
+                      <span className="match-tag">{friend.matchPercentage}%</span>
+                    </div>
+                    <span className="story-label">{friend.displayName?.split(" ")[0]}</span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
-          <div className="stats-row">
-            <div className="stat-card">
-              <div className="stat-number">{selectedMovies.length}</div>
-              <div className="stat-label">Movies</div>
+          {/* Large Hero Cinema Billboard */}
+          <div className="cinema-hero">
+            <div 
+              className="hero-backdrop" 
+              style={{
+                backgroundImage: `url(https://image.tmdb.org/t/p/w1280${heroMovie.backdrop_path || heroMovie.poster_path})`
+              }}
+            >
+              <div className="hero-gradient-overlay" />
             </div>
-            <div className="stat-card">
-              <div className="stat-number">{friendMatches.length}</div>
-              <div className="stat-label">Matches</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{selectedMovies.length}</div>
-              <div className="stat-label">Lounges</div>
+
+            <div className="hero-details">
+              <span className="hero-eyebrow">HEADLINE FILM</span>
+              <h2 className="hero-title">{heroMovie.title}</h2>
+              <p className="hero-desc">{heroMovie.overview}</p>
+              
+              <div className="hero-btn-row">
+                <button className="btn-primary" onClick={() => navigate("swiper")}>
+                  Start Swiping
+                </button>
+                <button className="btn-secondary" onClick={() => openGroupLounge(heroMovie)}>
+                  Enter Lounge
+                </button>
+              </div>
             </div>
           </div>
 
-          <p className="section-label">Discover</p>
-          <div className="feature-grid">
-            <div className="fcard fire" onClick={() => navigate("swiper")}>
-              <div className="fcard-icon">🔥</div>
-              <p className="fcard-title">Swipe Mode</p>
-              <p className="fcard-desc">Discover movies by swiping</p>
+          {/* Rail 1: User's Library */}
+          <div className="rail-section">
+            <div className="section-header">
+              <h3>Your Library ({selectedMovies.length})</h3>
+              <span className="section-link" onClick={() => navigate("select")}>
+                + Search Titles
+              </span>
             </div>
-            <div className="fcard ocean" onClick={() => navigate("select")}>
-              <div className="fcard-icon">🎬</div>
-              <p className="fcard-title">Select Movies</p>
-              <p className="fcard-desc">Search & pick your favs</p>
+
+            {selectedMovies.length === 0 ? (
+              <div className="empty-rail-placeholder" onClick={() => navigate("select")}>
+                <p>Tap + Add on any movie below or search to build your library.</p>
+              </div>
+            ) : (
+              <div className="poster-scroll-rail">
+                {selectedMovies.map((movie) => (
+                  <div 
+                    key={movie.id} 
+                    className="rail-poster-card" 
+                    onClick={() => openGroupLounge(movie)}
+                  >
+                    <img 
+                      src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`} 
+                      alt={movie.title} 
+                    />
+                    <div className="poster-meta">
+                      <span className="live-indicator">LOUNGE</span>
+                      <h5>{movie.title}</h5>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Rail 2: Trending (Disappears dynamically once added) */}
+          {visibleTrending.length > 0 && (
+            <div className="rail-section">
+              <div className="section-header">
+                <h3>Trending Movies</h3>
+                <span className="section-link" onClick={() => navigate("swiper")}>
+                  Swipe All
+                </span>
+              </div>
+
+              <div className="poster-scroll-rail">
+                {visibleTrending.slice(0, 12).map((movie) => (
+                  <div 
+                    key={movie.id} 
+                    className="rail-poster-card" 
+                    onClick={() => handleAddMovie(movie)}
+                  >
+                    <img 
+                      src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`} 
+                      alt={movie.title} 
+                    />
+                    <div className="poster-meta">
+                      <span className="add-badge">+ Add</span>
+                      <h5>{movie.title}</h5>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rail 3: Top Rated (Disappears dynamically once added) */}
+          {visibleTopRated.length > 0 && (
+            <div className="rail-section">
+              <div className="section-header">
+                <h3>Top Rated Films</h3>
+                <span className="section-link" onClick={() => navigate("select")}>
+                  Search All
+                </span>
+              </div>
+
+              <div className="poster-scroll-rail">
+                {visibleTopRated.slice(0, 12).map((movie) => (
+                  <div 
+                    key={movie.id} 
+                    className="rail-poster-card" 
+                    onClick={() => handleAddMovie(movie)}
+                  >
+                    <img 
+                      src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`} 
+                      alt={movie.title} 
+                    />
+                    <div className="poster-meta">
+                      <span className="score-badge">{Math.round(movie.vote_average * 10)}%</span>
+                      <h5>{movie.title}</h5>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Community Hub Links */}
+          <div className="action-cards-grid">
+            <div className="action-tile" onClick={() => navigate("lounges")}>
+              <span className="tile-category">COMMUNITY</span>
+              <h4>Movie Lounges</h4>
+              <p>Discuss the films in your library with other active viewers.</p>
+            </div>
+            <div className="action-tile" onClick={() => navigate("userGroups")}>
+              <span className="tile-category">CIRCLES</span>
+              <h4>Friend Groups</h4>
+              <p>Form private watch circles and plan upcoming sessions.</p>
             </div>
           </div>
 
-          <p className="section-label">Social</p>
-          <div className="feature-grid">
-            <div className="fcard gold" onClick={() => navigate("friendMatches")}>
-              <div className="fcard-icon">✨</div>
-              <p className="fcard-title">Friend Matches</p>
-              <p className="fcard-desc">{friendMatches.length} people match your taste</p>
-            </div>
-            <div className="fcard glass-card" onClick={() => navigate("inbox")}>
-              <div className="fcard-icon">💬</div>
-              <p className="fcard-title">My Chats</p>
-              <p className="fcard-desc">All your conversations</p>
-            </div>
-            <div className="fcard aurora" onClick={() => navigate("userGroups")}>
-              <div className="fcard-icon">👥</div>
-              <p className="fcard-title">Friend Groups</p>
-              <p className="fcard-desc">Private group chats</p>
-            </div>
-            <div className="fcard emerald" onClick={() => navigate("lounges")}>
-              <div className="fcard-icon">🎬</div>
-              <p className="fcard-title">Movie Lounges</p>
-              <p className="fcard-desc">Public fan club chats</p>
-            </div>
-          </div>
         </div>
       )}
 
@@ -216,6 +381,7 @@ export default function App() {
         <MovieSelector
           onSelectionComplete={(movies) => { setSelectedMovies(movies); navigate("home"); }}
           initialSelected={selectedMovies}
+          onBack={() => navigate("home")}
         />
       )}
 
@@ -265,7 +431,7 @@ export default function App() {
         <GroupChat
           user={user}
           chatId={"group_" + activeGroupLounge.id}
-          chatName={activeGroupLounge.title + " Fan Club"}
+          chatName={activeGroupLounge.title + " Lounge"}
           onBack={() => navigate("lounges")}
         />
       )}
@@ -298,7 +464,7 @@ export default function App() {
       )}
 
       {page === "swiper" && (
-        <MovieSwiper onAddMovie={addSwipedMovie} onBack={() => navigate("home")} />
+        <MovieSwiper onAddMovie={handleAddMovie} onBack={() => navigate("home")} />
       )}
 
       {page === "selected" && (
@@ -306,10 +472,6 @@ export default function App() {
       )}
 
       {user && <Navbar page={page} onNavigate={navigate} />}
-
-      <footer className="app-footer">
-        <p>© 2025 FriendFlix · Built with ❤️ by Fathima Jabbar</p>
-      </footer>
     </div>
   );
 }

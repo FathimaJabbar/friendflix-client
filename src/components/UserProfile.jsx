@@ -16,7 +16,7 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
       const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) {
         const data = docSnap.data();
-        setBio(data.bio || "I'm looking for movie buddies!");
+        setBio(data.bio || "Looking for movie buddies.");
         setPhotoURL(data.photoURL || user.photoURL || "");
       }
     };
@@ -40,9 +40,14 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
   return (
     <div className="profile-container glass-panel page-wrapper">
       <div className="profile-header">
-        <button className="btn-secondary" onClick={onBack}>← Back</button>
+        <button className="nav-back-btn" onClick={onBack}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span>Back</span>
+        </button>
         <h2>Your Profile</h2>
-        <div style={{ width: "80px" }}></div>
+        <div style={{ width: "68px" }}></div>
       </div>
 
       <div className="profile-top">
@@ -54,19 +59,23 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
           />
           <button 
             className="btn-secondary" 
-            style={{ position: "absolute", bottom: "0", right: "0", padding: "5px 10px", borderRadius: "50%" }}
+            style={{ position: "absolute", bottom: "0", right: "0", padding: "6px 8px", borderRadius: "50%", background: "#181820" }}
             onClick={() => setIsEditingPhoto(!isEditingPhoto)}
+            title="Edit Photo"
           >
-            📸
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
           </button>
         </div>
         <div className="profile-info">
           <h3>{user.displayName}</h3>
           
           {isEditingPhoto && (
-            <div className="glass-card" style={{ padding: "20px", marginTop: "15px", borderRadius: "16px" }}>
-              <p style={{ margin: "0 0 10px 0", fontSize: "0.9rem", fontWeight: "600" }}>Upload from your device</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
+            <div className="glass-card" style={{ padding: "18px", marginTop: "14px", borderRadius: "16px" }}>
+              <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", fontWeight: "600" }}>Upload Image</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
                 <input 
                   type="file" 
                   accept="image/*"
@@ -74,7 +83,7 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
                     const file = e.target.files[0];
                     if (file) {
                       if (file.size > 1024 * 1024) {
-                        alert("File is too large! Please pick an image under 1MB.");
+                        alert("File is too large! Please choose an image under 1MB.");
                         return;
                       }
                       const reader = new FileReader();
@@ -86,19 +95,20 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
                   }}
                   style={{ 
                     background: "rgba(255,255,255,0.05)", 
-                    padding: "10px", 
+                    padding: "8px", 
                     borderRadius: "8px", 
                     color: "white",
-                    width: "100%" 
+                    width: "100%",
+                    fontSize: "0.85rem"
                   }}
                 />
                 <button className="btn-primary" onClick={handleSavePhoto} disabled={saving} style={{ width: "100%" }}>
-                  {saving ? "Uploading..." : "Save Profile Picture"}
+                  {saving ? "Saving..." : "Save Picture"}
                 </button>
               </div>
 
-              <p style={{ margin: "0 0 10px 0", fontSize: "0.9rem", fontWeight: "600" }}>Or pick a preset:</p>
-              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
+              <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", fontWeight: "600" }}>Presets</p>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                 {[
                   "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
                   "https://cdn-icons-png.flaticon.com/512/3135/3135768.png",
@@ -110,7 +120,13 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
                     key={i}
                     src={url} 
                     alt="preset" 
-                    style={{ width: "45px", height: "45px", cursor: "pointer", borderRadius: "50%", border: photoURL === url ? "2px solid #00c6ff" : "1px solid rgba(255,255,255,0.1)" }}
+                    style={{ 
+                      width: "42px", 
+                      height: "42px", 
+                      cursor: "pointer", 
+                      borderRadius: "50%", 
+                      border: photoURL === url ? "2px solid var(--accent-primary, #e50914)" : "1px solid rgba(255,255,255,0.12)" 
+                    }}
                     onClick={() => { setPhotoURL(url); }}
                   />
                 ))}
@@ -125,17 +141,17 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
                   value={bio} 
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={150}
-                  placeholder="Write a short bio..."
+                  placeholder="Tell people about your film taste..."
                 />
                 <button className="btn-primary save-bio-btn" onClick={handleSaveBio} disabled={saving}>
-                  {saving ? "Saving..." : "Save"}
+                  {saving ? "Saving..." : "Save Bio"}
                 </button>
               </div>
             ) : (
               <div className="bio-display">
                 <p>"{bio}"</p>
                 <button className="btn-secondary edit-bio-btn" onClick={() => setIsEditingBio(true)}>
-                  ✎ Edit Bio
+                  Edit Bio
                 </button>
               </div>
             )}
@@ -145,7 +161,7 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
 
       <h3 className="movies-heading">Favorite Movies ({selectedMovies.length})</h3>
       {selectedMovies.length === 0 ? (
-        <p className="no-movies">No movies selected yet. Go to Swipe Mode!</p>
+        <p className="no-movies" style={{ color: "var(--text-secondary)" }}>No movies added yet.</p>
       ) : (
         <div className="profile-movie-grid">
           {selectedMovies.map((movie) => (

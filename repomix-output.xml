@@ -1,0 +1,5515 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  favicon.ico
+  index.html
+  logo192.png
+  logo512.png
+  manifest.json
+  robots.txt
+  sw.js
+src/
+  components/
+    Chat.css
+    Chat.jsx
+    CreateGroup.css
+    CreateGroup.jsx
+    FriendMatches.css
+    FriendMatches.jsx
+    GroupChat.css
+    GroupChat.jsx
+    Inbox.css
+    Inbox.jsx
+    MovieCard3D.css
+    MovieCard3D.jsx
+    MovieLounges.css
+    MovieLounges.jsx
+    MovieSelector.css
+    MovieSelector.jsx
+    MovieSwiper.css
+    MovieSwiper.jsx
+    Navbar.css
+    Navbar.jsx
+    SelectedMovies.css
+    SelectedMovies.jsx
+    Toast.css
+    Toast.jsx
+    UserGroups.css
+    UserGroups.jsx
+    UserProfile.css
+    UserProfile.jsx
+  pages/
+    Home.jsx
+    Login.jsx
+    MachedFriends.jsx
+    Register.jsx
+  App.css
+  App.js
+  App.test.js
+  Auth.js
+  firebase.js
+  index.css
+  index.js
+  logo.svg
+  MovieSearch.jsx
+  reportWebVitals.js
+  setupTests.js
+.firebaserc
+.gitignore
+.nvmrc
+.vercelignore
+craco.config.js
+firebase.json
+friendflix-clean.zip
+package.json
+README.md
+vercel.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/components/MovieCard3D.css">
+.movie-card-3d {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  will-change: transform;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.poster-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.glare-effect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 14px 14px;
+  background: linear-gradient(to top, rgba(6,6,8,0.95) 0%, rgba(6,6,8,0.6) 60%, transparent 100%);
+}
+.card-overlay h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 4px; }
+.card-overlay p { font-size: 0.78rem; color: var(--text-secondary); margin: 0; }
+</file>
+
+<file path="src/components/MovieCard3D.jsx">
+import React, { useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+
+export default function MovieCard3D({ posterPath, title, subtitle, onClick, className = "", children }) {
+  const cardRef = useRef(null);
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"]);
+  const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ["0%", "100%"]);
+  const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ["0%", "100%"]);
+  const glareOpacity = useTransform(mouseXSpring, [-0.5, 0.5], [0, 0.25]);
+
+  const handleMouseMove = (e) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    x.set(mouseX / width - 0.5);
+    y.set(mouseY / height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 1000,
+      }}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      className={`movie-card-3d ${className}`}
+    >
+      <div className="card-inner" style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}>
+        {posterPath && (
+          <img
+            src={`https://image.tmdb.org/t/p/w500${posterPath}`}
+            alt={title || "Movie poster"}
+            className="poster-image"
+          />
+        )}
+        <motion.div
+          className="glare-effect"
+          style={{
+            background: useTransform(
+              glareX,
+              (latest) => `radial-gradient(circle at ${latest} ${glareY.get()}%, rgba(255,255,255,0.4), transparent 60%)`
+            ),
+            opacity: glareOpacity,
+          }}
+        />
+        {(title || subtitle || children) && (
+          <div className="card-overlay">
+            {title && <h4>{title}</h4>}
+            {subtitle && <p>{subtitle}</p>}
+            {children}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+</file>
+
+<file path="public/robots.txt">
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+</file>
+
+<file path="public/sw.js">
+/* ── Pre-cache shell for FriendFlix PWA ── */
+const CACHE_NAME = 'friendflix-v1';
+const SHELL = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/logo192.png',
+  '/logo512.png',
+  '/favicon.ico',
+];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (e) => {
+  /* Only intercept same-origin GET requests; skip Firebase & API calls */
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET') return;
+  if (url.origin !== location.origin) return;
+
+  e.respondWith(
+    caches.match(e.request).then((cached) => {
+      const networkFetch = fetch(e.request).then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(e.request, clone));
+        }
+        return res;
+      });
+      return cached || networkFetch;
+    })
+  );
+});
+</file>
+
+<file path="src/components/CreateGroup.css">
+.create-group-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 40px;
+  text-align: center;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.create-group-container h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.input-wrapper {
+  margin-bottom: 40px;
+}
+
+.group-name-input {
+  width: 100%;
+  padding: 18px 25px;
+  font-size: 1.2rem;
+  border-radius: 16px;
+  border: 1px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  transition: all 0.3s ease;
+}
+
+.group-name-input:focus {
+  outline: none;
+  border-color: rgba(0, 198, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 198, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.friends-selection-list {
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.friends-selection-list h3 {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.friends-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.friends-grid::-webkit-scrollbar {
+  width: 5px;
+}
+.friends-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.friend-select-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.friend-select-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 198, 255, 0.3);
+  transform: translateX(5px);
+}
+
+.friend-select-item.selected {
+  background: rgba(0, 198, 255, 0.1);
+  border-color: rgba(0, 198, 255, 0.5);
+}
+
+.friend-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.friend-info .name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.friend-info .badge {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.checkbox {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.friend-select-item.selected .checkbox {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: white;
+}
+
+.create-group-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+</file>
+
+<file path="src/components/CreateGroup.jsx">
+import React, { useState } from "react";
+import { createCustomGroup } from "../firebase";
+import "./CreateGroup.css";
+
+const CreateGroup = ({ user, matches, onBack, onSuccess }) => {
+  const [groupName, setGroupName] = useState("");
+  const [selectedFriends, setSelectedFriends] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const toggleFriend = (id) => {
+    setSelectedFriends((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
+
+  const handleCreate = async () => {
+    if (!groupName.trim()) {
+      alert("Please enter a group name.");
+      return;
+    }
+    if (selectedFriends.length === 0) {
+      alert("Please select at least one friend.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const participantIds = [...selectedFriends, user.uid];
+      const groupId = await createCustomGroup(groupName, participantIds, user.uid);
+      onSuccess(groupId, groupName);
+    } catch (err) {
+      console.error(err);
+      alert("Error creating group. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="create-group-container glass-panel page-wrapper">
+      <h2>Create Friend Group</h2>
+      <p style={{ color: "var(--text-secondary)", marginBottom: "30px", fontSize: "0.9rem" }}>
+        Form a private watch circle with your matches.
+      </p>
+
+      <div className="input-wrapper">
+        <input
+          type="text"
+          className="group-name-input"
+          placeholder="Group Name (e.g., Weekend Screening)"
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)}
+        />
+      </div>
+
+      <div className="friends-selection-list">
+        <h3>Select Members</h3>
+        {matches.length === 0 ? (
+          <p style={{ padding: "20px", color: "var(--text-secondary)", fontSize: "0.88rem" }}>
+            No matches found yet. Add more films to discover friends.
+          </p>
+        ) : (
+          <div className="friends-grid">
+            {matches.map((friend) => (
+              <div 
+                key={friend.userId} 
+                className={`friend-select-item ${selectedFriends.includes(friend.userId) ? "selected" : ""}`}
+                onClick={() => toggleFriend(friend.userId)}
+              >
+                <div className="friend-info">
+                  <span className="name">{friend.displayName}</span>
+                  <span className="badge">{friend.badge?.name}</span>
+                </div>
+                <div className="checkbox">
+                  {selectedFriends.includes(friend.userId) ? "✓" : "+"}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="create-group-actions">
+        <button className="btn-secondary" onClick={onBack} disabled={loading}>Cancel</button>
+        <button 
+          className="btn-primary" 
+          onClick={handleCreate}
+          disabled={loading}
+          style={{ padding: "12px 36px" }}
+        >
+          {loading ? "Creating..." : "Confirm Group"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CreateGroup;
+</file>
+
+<file path="src/components/GroupChat.jsx">
+import React, { useState, useEffect, useRef } from "react";
+import {
+  listenToGroupMessages,
+  sendGroupMessage,
+} from "../firebase";
+import "./GroupChat.css";
+import "./Chat.css"; // Reuse chat styles for planner and events
+
+export default function GroupChat({ user, chatId, chatName, onBack }) {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [showPlanner, setShowPlanner] = useState(false);
+  const [eventDate, setEventDate] = useState("");
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (!user || !chatId) return;
+
+    const unsubscribe = listenToGroupMessages(chatId, (msgs) => {
+      setMessages(msgs);
+    });
+
+    return () => unsubscribe();
+  }, [user, chatId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  async function handleSend(e) {
+    e.preventDefault();
+    if (input.trim() === "" || !chatId) return;
+
+    try {
+      await sendGroupMessage(chatId, user.uid, user.displayName, input.trim(), "text", null, user.photoURL);
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Message failed to send. Check Firebase permissions.");
+    }
+  }
+
+  const handleScheduleEvent = async () => {
+    if (!eventDate) return;
+    try {
+      await sendGroupMessage(chatId, user.uid, user.displayName, "", "event", {
+        title: "Group Movie Night 🍿",
+        dateTime: eventDate
+      }, user.photoURL);
+      setShowPlanner(false);
+      setEventDate("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="group-chat-container">
+      <div className="chat-header glass-panel" style={{ padding: "15px 25px", borderRadius: "20px" }}>
+        <button className="btn-secondary" onClick={onBack}>
+          ← Back
+        </button>
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <h2 style={{ margin: 0, fontSize: "1.8rem" }}>{chatName}</h2>
+          <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+            Group Chat
+          </span>
+        </div>
+        <div style={{ width: "80px" }}></div>
+      </div>
+
+      <div className="chat-messages glass-panel">
+        {messages.length === 0 && (
+          <p style={{ textAlign: "center", color: "var(--text-secondary)", marginTop: "20px" }}>
+            Welcome to {chatName}! Be the first to say hi!
+          </p>
+        )}
+        {messages.map((msg) => {
+          const isSent = msg.senderId === user.uid;
+
+          if (msg.type === "event") {
+             return (
+               <div key={msg.id} className="event-card-wrapper">
+                 <div className="event-card glass-panel">
+                   <h3>{msg.eventDetails.title}</h3>
+                   <p>Scheduled by {isSent ? "You" : msg.senderName}</p>
+                   <div className="event-time">
+                     📅 {new Date(msg.eventDetails.dateTime).toLocaleString()}
+                   </div>
+                 </div>
+               </div>
+             );
+          }
+
+          return (
+            <div
+              key={msg.id}
+              className={`message-wrapper ${isSent ? "sent" : "received"}`}
+            >
+              {!isSent && (
+                <img 
+                  src={msg.senderPhoto || `https://ui-avatars.com/api/?name=${msg.senderName}&background=random`} 
+                  className="chat-avatar" 
+                  alt="Avatar" 
+                  style={{ alignSelf: "flex-end", marginBottom: "10px" }}
+                />
+              )}
+              <div className="message-bubble-wrapper">
+                {!isSent && <div className="sender-name">{msg.senderName || "Unknown User"}</div>}
+                <div className="message-bubble">{msg.text}</div>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {showPlanner && (
+        <div className="planner-modal glass-panel">
+          <h3>Schedule Movie Night 📅</h3>
+          <input 
+            type="datetime-local" 
+            value={eventDate} 
+            onChange={e => setEventDate(e.target.value)} 
+            className="chat-input"
+            style={{ marginBottom: "15px", width: "100%" }}
+          />
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button className="btn-secondary" onClick={() => setShowPlanner(false)}>Cancel</button>
+            <button className="btn-primary" onClick={handleScheduleEvent}>Send Invite</button>
+          </div>
+        </div>
+      )}
+
+      <div className="chat-input-area">
+        <button 
+          type="button" 
+          className="btn-secondary plan-btn" 
+          onClick={() => setShowPlanner(!showPlanner)}
+          title="Plan Movie Night"
+        >
+          📅
+        </button>
+        <form onSubmit={handleSend} style={{ flex: 1, display: "flex", gap: "15px" }}>
+          <input
+            type="text"
+            className="chat-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Message..."
+          />
+          <button type="submit" className="btn-primary chat-send-btn">
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/Inbox.css">
+.inbox-container { max-width: 700px; margin: 0 auto; padding: 24px 0; }
+
+.inbox-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 24px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.inbox-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.tab-btn {
+  padding: 9px 18px;
+  border-radius: 40px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--font-family);
+  transition: all 0.22s ease;
+}
+.tab-btn.active {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 14px var(--glow-blue);
+}
+.tab-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+}
+
+.inbox-list { display: flex; flex-direction: column; gap: 8px; }
+
+.inbox-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.inbox-item:hover {
+  background: rgba(255,255,255,0.07);
+  transform: translateX(4px);
+  border-color: rgba(0,198,255,0.25);
+}
+
+.inbox-avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 52px; height: 52px;
+  border-radius: 18px;
+  background: var(--accent-gradient);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  overflow: visible;
+}
+.inbox-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+}
+.inbox-avatar span { color: white; }
+.group-badge {
+  position: absolute;
+  bottom: -4px; right: -4px;
+  background: #0a0a0f;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.inbox-details { flex: 1; min-width: 0; }
+.inbox-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.inbox-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.inbox-time {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.inbox-preview {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</file>
+
+<file path="src/components/Inbox.jsx">
+import React, { useState, useEffect } from "react";
+import { listenToAllUserChats } from "../firebase";
+import "./Inbox.css";
+
+export default function Inbox({ user, matches, onOpenPrivateChat, onOpenGroupChat }) {
+  const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("all");
+
+  useEffect(() => {
+    if (!user) return;
+    const unsub = listenToAllUserChats(user.uid, (all) => {
+      const sorted = [...all].sort((a, b) => {
+        const ta = a.lastMessageTime?.toMillis?.() || 0;
+        const tb = b.lastMessageTime?.toMillis?.() || 0;
+        return tb - ta;
+      });
+      setChats(sorted);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, [user]);
+
+  const resolvePrivate = (chat) => {
+    const otherId = chat.participants?.find((id) => id !== user.uid);
+    const match = matches.find((m) => m.userId === otherId);
+    return {
+      name: match?.displayName || (chat.isCustomGroup ? chat.name : "User " + (otherId?.substring(0, 4) || "Unknown")),
+      photo: match?.photoURL || "",
+      uid: otherId,
+      matchRef: match,
+    };
+  };
+
+  const isPrivate = (chat) => !chat.isCustomGroup && chat.participants?.length === 2;
+
+  const filtered = chats.filter((chat) => {
+    if (chat.isCustomGroup) return tab === "all" || tab === "groups";
+    if (isPrivate(chat)) {
+      const p = resolvePrivate(chat);
+      if (!p.matchRef) return false; // Filter out proxy friends (non-matches)
+      return tab === "all" || tab === "private";
+    }
+    return tab === "all";
+  });
+
+  const formatTime = (ts) => {
+    if (!ts?.toDate) return "";
+    const d = ts.toDate();
+    const now = new Date();
+    if (d.toDateString() === now.toDateString())
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleDateString([], { month: "short", day: "numeric" });
+  };
+
+  const handleOpen = (chat) => {
+    if (chat.isCustomGroup) {
+      onOpenGroupChat({ id: chat.id, name: chat.name });
+    } else {
+      const p = resolvePrivate(chat);
+      if (p.matchRef) {
+        onOpenPrivateChat({
+          uid: p.uid,
+          displayName: p.name,
+          photoURL: p.photo,
+        });
+      } else {
+        alert("Could not find this friend in your matches.");
+      }
+    }
+  };
+
+  return (
+    <div className="inbox-container page-wrapper">
+      <h2 className="inbox-title">Messages</h2>
+
+      <div className="inbox-tabs">
+        {["all", "private", "groups"].map((t) => (
+          <button
+            key={t}
+            className={`tab-btn ${tab === t ? "active" : ""}`}
+            onClick={() => setTab(t)}
+          >
+            {t === "all" ? "All" : t === "private" ? "💬 Direct" : "👥 Groups"}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="empty-state">
+          <p style={{ animation: "pulse 1.5s infinite" }}>Loading conversations...</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">💬</div>
+          <h3>No conversations yet</h3>
+          <p>Start chatting with your matches or create a friend group!</p>
+        </div>
+      ) : (
+        <div className="inbox-list">
+          {filtered.map((chat) => {
+            const priv = isPrivate(chat);
+            const info = priv ? resolvePrivate(chat) : null;
+            const displayName = priv ? info?.name : chat.name;
+            const photo = priv ? info?.photo : null;
+            const initial = (displayName || "?").charAt(0).toUpperCase();
+
+            return (
+              <div key={chat.id} className="inbox-item glass-card" onClick={() => handleOpen(chat)}>
+                <div className="inbox-avatar">
+                  {photo ? (
+                    <img src={photo} alt={displayName} />
+                  ) : (
+                    <span>{initial}</span>
+                  )}
+                  {!priv && <div className="group-badge">👥</div>}
+                </div>
+                <div className="inbox-details">
+                  <div className="inbox-row">
+                    <span className="inbox-name">{displayName}</span>
+                    <span className="inbox-time">{formatTime(chat.lastMessageTime)}</span>
+                  </div>
+                  <p className="inbox-preview">
+                    {chat.lastMessage || "No messages yet — say hi!"}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/MovieLounges.css">
+.lounges-container { max-width: 900px; margin: 0 auto; padding: 24px 0; }
+
+.lounges-header { margin-bottom: 28px; }
+.lounges-header h2 { font-size: 2rem; font-weight: 800; margin: 0 0 6px; }
+.lounges-header p { color: var(--text-secondary); margin: 0; }
+
+.lounges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.lounge-card {
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.35s ease;
+}
+.lounge-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 45px rgba(0,0,0,0.6); }
+
+.lounge-poster-wrap {
+  position: relative;
+  aspect-ratio: 2/3;
+  width: 100%;
+}
+.lounge-poster {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.lounge-card:hover .lounge-poster { transform: scale(1.06); }
+
+.lounge-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  transition: all 0.3s ease;
+}
+
+.lounge-live-badge {
+  align-self: flex-start;
+  background: rgba(255, 60, 60, 0.85);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  animation: pulse 2s infinite;
+}
+
+.lounge-overlay-content { }
+.lounge-overlay-content h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.lounge-enter-btn {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+  text-align: center;
+}
+.lounge-card:hover .lounge-enter-btn {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 16px var(--glow-blue);
+}
+</file>
+
+<file path="src/components/MovieLounges.jsx">
+import React from "react";
+import "./MovieLounges.css";
+
+const MovieLounges = ({ selectedMovies, onJoinLounge, onBack }) => {
+  return (
+    <div className="lounges-container page-wrapper">
+      <div className="lounges-header">
+        <h2>🎬 Movie Lounges</h2>
+        <p>Jump into public fan clubs based on your favourite films</p>
+      </div>
+
+      {selectedMovies.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">🎬</div>
+          <h3>No movies selected yet</h3>
+          <p>Select some movies first to access their lounges!</p>
+        </div>
+      ) : (
+        <div className="lounges-grid">
+          {selectedMovies.map((movie) => (
+            <div key={movie.id} className="lounge-card" onClick={() => onJoinLounge(movie)}>
+              <div className="lounge-poster-wrap">
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt={movie.title}
+                  className="lounge-poster"
+                />
+                <div className="lounge-overlay">
+                  <div className="lounge-live-badge">● LIVE</div>
+                  <div className="lounge-overlay-content">
+                    <h3>{movie.title}</h3>
+                    <button className="lounge-enter-btn">Enter Lounge →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MovieLounges;
+</file>
+
+<file path="src/components/MovieSwiper.jsx">
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import "./MovieSwiper.css";
+
+const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
+
+export default function MovieSwiper({ onAddMovie, onBack }) {
+  const [movies, setMovies] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&page=2`)
+      .then((res) => setMovies(res.data.results || []))
+      .catch(console.error);
+  }, []);
+
+  const handleSwipe = (direction) => {
+    if (direction === "right" && movies[currentIndex]) {
+      onAddMovie(movies[currentIndex]);
+    }
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  if (currentIndex >= movies.length && movies.length > 0) {
+    return (
+      <div className="swiper-container glass-panel page-wrapper" style={{ padding: "40px", marginTop: "40px" }}>
+        <h2>Deck Complete</h2>
+        <p style={{ color: "var(--text-secondary)", marginBottom: "24px" }}>
+          You have reviewed all current suggestions.
+        </p>
+        <button className="btn-primary" onClick={onBack}>Return to Home</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="swiper-container page-wrapper">
+      <div className="swiper-header">
+        <button className="nav-back-btn" onClick={onBack} title="Go Back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span>Back</span>
+        </button>
+        <h2>Discovery Deck</h2>
+        <div style={{ width: "68px" }}></div>
+      </div>
+      
+      <p className="swiper-hint">Swipe right to add to library, left to pass</p>
+
+      <div className="card-stack">
+        <AnimatePresence>
+          {movies.slice(currentIndex, currentIndex + 1).map((movie) => (
+            <MovieCard key={movie.id} movie={movie} onSwipe={handleSwipe} />
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <div className="swiper-controls">
+        <button className="btn-secondary skip-btn" onClick={() => handleSwipe("left")}>Pass</button>
+        <button className="btn-primary like-btn" onClick={() => handleSwipe("right")}>Add to Library</button>
+      </div>
+    </div>
+  );
+}
+
+function MovieCard({ movie, onSwipe }) {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-20, 20]);
+  const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
+
+  const handleDragEnd = (event, info) => {
+    if (info.offset.x > 100) onSwipe("right");
+    else if (info.offset.x < -100) onSwipe("left");
+  };
+
+  return (
+    <motion.div
+      className="swipe-card glass-panel"
+      style={{ x, rotate, opacity }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      onDragEnd={handleDragEnd}
+      whileTap={{ scale: 1.02 }}
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ x: x.get() > 0 ? 500 : -500, opacity: 0, transition: { duration: 0.25 } }}
+    >
+      <img
+        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        alt={movie.title}
+        className="card-poster"
+      />
+      <div className="card-info">
+        <h3>{movie.title}</h3>
+        <p>{movie.release_date?.split("-")[0]}</p>
+      </div>
+    </motion.div>
+  );
+}
+</file>
+
+<file path="src/components/Navbar.jsx">
+import React from "react";
+import "./Navbar.css";
+
+const Icons = {
+  home: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z" />
+    </svg>
+  ),
+  swiper: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="2" width="16" height="20" rx="3" />
+      <path d="M12 14l3-3-3-3-3 3 3 3z" />
+    </svg>
+  ),
+  friendMatches: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+  inbox: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  ),
+  lounges: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  ),
+  profile: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  ),
+};
+
+const NAV_ITEMS = [
+  { id: "home",          label: "Home"    },
+  { id: "swiper",        label: "Discover"},
+  { id: "friendMatches", label: "Matches" },
+  { id: "inbox",         label: "Direct"  },
+  { id: "lounges",       label: "Lounges" },
+  { id: "profile",       label: "Profile" },
+];
+
+const CHAT_PAGES = ["chat", "groupChatLounge", "groupChatCustom"];
+
+export default function Navbar({ page, onNavigate }) {
+  const isChatPage = CHAT_PAGES.includes(page);
+
+  return (
+    <nav className={`bottom-nav ${isChatPage ? "hidden" : ""}`}>
+      <div className="bottom-nav-inner">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            page === item.id ||
+            (item.id === "inbox" && page === "chat") ||
+            (item.id === "lounges" && page === "groupChatLounge");
+
+          return (
+            <button
+              key={item.id}
+              className={`nav-item ${isActive ? "active" : ""}`}
+              onClick={() => onNavigate(item.id)}
+            >
+              <span className="nav-icon">{Icons[item.id]}</span>
+              <span className="nav-label">{item.label}</span>
+              {isActive && <span className="nav-indicator" />}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+</file>
+
+<file path="src/components/SelectedMovies.css">
+.selected-movies-container {
+  padding: 1rem;
+}
+
+.back-button {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 per row */
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.movie-item {
+  text-align: center;
+  background-color: #f9f9f9;
+  padding: 0.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.movie-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: contain; /* changed from cover */
+  aspect-ratio: 2 / 3;  /* keeps poster-like ratio */
+}
+
+.movie-title {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+</file>
+
+<file path="src/components/Toast.css">
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(10, 10, 15, 0.85);
+  border: 1px solid rgba(0, 198, 255, 0.3);
+  padding: 15px 20px;
+  border-radius: 16px;
+  z-index: 1000;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 198, 255, 0.2);
+  animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.5s ease 3.5s forwards;
+  backdrop-filter: blur(15px);
+  min-width: 250px;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+  background: rgba(0, 198, 255, 0.1);
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.toast-text {
+  text-align: left;
+}
+
+.toast-text h4 {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.toast-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+</file>
+
+<file path="src/components/Toast.jsx">
+import React, { useEffect } from "react";
+import "./Toast.css";
+
+const Toast = ({ message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [message, onClose]);
+
+  if (!message) return null;
+
+  return (
+    <div className="toast-notification glass-panel" onClick={onClose}>
+      <div className="toast-content">
+        <div className="toast-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+        </div>
+        <div className="toast-text">
+          <h4>New Notification</h4>
+          <p>{message}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Toast;
+</file>
+
+<file path="src/components/UserGroups.css">
+.user-groups-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.groups-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.groups-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.no-groups {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.group-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.group-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+  border-color: rgba(0, 198, 255, 0.3);
+}
+
+.group-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  flex-shrink: 0;
+}
+
+.group-details {
+  flex: 1;
+}
+.group-details h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+}
+.group-details p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.open-chat-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 20px;
+}
+</file>
+
+<file path="src/components/UserGroups.jsx">
+import React, { useState, useEffect } from "react";
+import { listenToUserGroups } from "../firebase";
+import "./UserGroups.css";
+
+const UserGroups = ({ user, onJoinGroup, onBack, onCreateNew }) => {
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const unsubscribe = listenToUserGroups(user.uid, (fetchedGroups) => {
+      setGroups(fetchedGroups);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  return (
+    <div className="user-groups-container glass-panel page-wrapper">
+      <div className="groups-header">
+        <h2>Your Friend Groups</h2>
+        <button className="btn-primary" onClick={onCreateNew} style={{ padding: "10px 22px", borderRadius: "999px" }}>
+          + New Group
+        </button>
+      </div>
+
+      {loading ? (
+        <p style={{ padding: "40px", color: "var(--text-secondary)" }}>Loading your circles...</p>
+      ) : groups.length === 0 ? (
+        <div className="no-groups">
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginBottom: "20px" }}>
+            You aren't in any friend groups yet.
+          </p>
+          <button className="btn-secondary" onClick={onCreateNew}>Create your first group</button>
+        </div>
+      ) : (
+        <div className="groups-list">
+          {groups.map((group) => (
+            <div key={group.id} className="group-item" onClick={() => onJoinGroup(group)}>
+              <div className="group-avatar">
+                {group.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="group-details">
+                <h3>{group.name}</h3>
+                <p>{group.participants.length} members · Created {group.createdAt?.toDate().toLocaleDateString()}</p>
+              </div>
+              <button className="btn-secondary open-chat-btn">Open Chat</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button className="btn-secondary back-btn" onClick={onBack} style={{ marginTop: "40px", width: "100%", maxWidth: "300px" }}>
+        Return to Home
+      </button>
+    </div>
+  );
+};
+
+export default UserGroups;
+</file>
+
+<file path="src/pages/Home.jsx">
+import React from 'react';
+
+const Home = ({ navigate }) => {
+  return (
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h1>Welcome to Friendflix 👥🍿</h1>
+      <button onClick={() => navigate('register')}>Register</button>
+      <button onClick={() => navigate('select')}>Select Movies</button>
+      <button onClick={() => navigate('matches')}>Find Matches</button>
+    </div>
+  );
+};
+
+export default Home;
+</file>
+
+<file path="src/pages/Login.jsx">
+// src/components/Login.jsx
+import React from "react";
+import { auth, provider, signInWithPopup } from "../firebase";
+
+export default function Login() {
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+      // onAuthStateChanged in App.js will update user state
+    } catch (error) {
+      alert("Failed to sign in: " + error.message);
+    }
+  };
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "2rem" }}>
+      <button onClick={signInWithGoogle}>Sign in with Google</button>
+    </div>
+  );
+}
+</file>
+
+<file path="src/pages/MachedFriends.jsx">
+// src/pages/MatchedFriends.jsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const MatchedFriends = () => {
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMatches = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('https://friendflix-backend.up.railway.app/api/match', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setMatches(res.data.matches);
+    } catch (err) {
+      console.error('Error fetching matched friends:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMatches();
+  }, []);
+
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h2>Matched Friends</h2>
+      {loading ? (
+        <p>Loading matches...</p>
+      ) : matches.length === 0 ? (
+        <p>No matched friends found.</p>
+      ) : (
+        <ul>
+          {matches.map((friend, index) => (
+            <li key={index}>
+              <strong>{friend.username}</strong> – Shared Movies: {friend.sharedMovies.join(', ')}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default MatchedFriends;
+</file>
+
+<file path="src/pages/Register.jsx">
+// src/pages/Register.jsx
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const Register = () => {
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, form);
+
+      setMessage(res.data.msg || 'Registration successful!');
+      navigate('/select'); // redirect after success
+    } catch (err) {
+      setMessage(err.response?.data?.msg || 'Error occurred.');
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 400, margin: '50px auto' }}>
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+          required
+        /><br /><br />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        /><br /><br />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        /><br /><br />
+        <button type="submit">Register</button>
+      </form>
+      <p>{message}</p>
+    </div>
+  );
+};
+
+export default Register;
+</file>
+
+<file path="src/App.test.js">
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+</file>
+
+<file path="src/Auth.js">
+// src/Auth.js
+import { auth, provider, signInWithPopup } from "./firebase";
+
+export async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log("Signed in user:", result.user);
+  } catch (error) {
+    console.error("Failed to sign in:", error);
+  }
+}
+</file>
+
+<file path="src/logo.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3"><g fill="#61DAFB"><path d="M666.3 296.5c0-32.5-40.7-63.3-103.1-82.4 14.4-63.6 8-114.2-20.2-130.4-6.5-3.8-14.1-5.6-22.4-5.6v22.3c4.6 0 8.3.9 11.4 2.6 13.6 7.8 19.5 37.5 14.9 75.7-1.1 9.4-2.9 19.3-5.1 29.4-19.6-4.8-41-8.5-63.5-10.9-13.5-18.5-27.5-35.3-41.6-50 32.6-30.3 63.2-46.9 84-46.9V78c-27.5 0-63.5 19.6-99.9 53.6-36.4-33.8-72.4-53.2-99.9-53.2v22.3c20.7 0 51.4 16.5 84 46.6-14 14.7-28 31.4-41.3 49.9-22.6 2.4-44 6.1-63.6 11-2.3-10-4-19.7-5.2-29-4.7-38.2 1.1-67.9 14.6-75.8 3-1.8 6.9-2.6 11.5-2.6V78.5c-8.4 0-16 1.8-22.6 5.6-28.1 16.2-34.4 66.7-19.9 130.1-62.2 19.2-102.7 49.9-102.7 82.3 0 32.5 40.7 63.3 103.1 82.4-14.4 63.6-8 114.2 20.2 130.4 6.5 3.8 14.1 5.6 22.5 5.6 27.5 0 63.5-19.6 99.9-53.6 36.4 33.8 72.4 53.2 99.9 53.2 8.4 0 16-1.8 22.6-5.6 28.1-16.2 34.4-66.7 19.9-130.1 62-19.1 102.5-49.9 102.5-82.3zm-130.2-66.7c-3.7 12.9-8.3 26.2-13.5 39.5-4.1-8-8.4-16-13.1-24-4.6-8-9.5-15.8-14.4-23.4 14.2 2.1 27.9 4.7 41 7.9zm-45.8 106.5c-7.8 13.5-15.8 26.3-24.1 38.2-14.9 1.3-30 2-45.2 2-15.1 0-30.2-.7-45-1.9-8.3-11.9-16.4-24.6-24.2-38-7.6-13.1-14.5-26.4-20.8-39.8 6.2-13.4 13.2-26.8 20.7-39.9 7.8-13.5 15.8-26.3 24.1-38.2 14.9-1.3 30-2 45.2-2 15.1 0 30.2.7 45 1.9 8.3 11.9 16.4 24.6 24.2 38 7.6 13.1 14.5 26.4 20.8 39.8-6.3 13.4-13.2 26.8-20.7 39.9zm32.3-13c5.4 13.4 10 26.8 13.8 39.8-13.1 3.2-26.9 5.9-41.2 8 4.9-7.7 9.8-15.6 14.4-23.7 4.6-8 8.9-16.1 13-24.1zM421.2 430c-9.3-9.6-18.6-20.3-27.8-32 9 .4 18.2.7 27.5.7 9.4 0 18.7-.2 27.8-.7-9 11.7-18.3 22.4-27.5 32zm-74.4-58.9c-14.2-2.1-27.9-4.7-41-7.9 3.7-12.9 8.3-26.2 13.5-39.5 4.1 8 8.4 16 13.1 24 4.7 8 9.5 15.8 14.4 23.4zM420.7 163c9.3 9.6 18.6 20.3 27.8 32-9-.4-18.2-.7-27.5-.7-9.4 0-18.7.2-27.8.7 9-11.7 18.3-22.4 27.5-32zm-74 58.9c-4.9 7.7-9.8 15.6-14.4 23.7-4.6 8-8.9 16-13 24-5.4-13.4-10-26.8-13.8-39.8 13.1-3.1 26.9-5.8 41.2-7.9zm-90.5 125.2c-35.4-15.1-58.3-34.9-58.3-50.6 0-15.7 22.9-35.6 58.3-50.6 8.6-3.7 18-7 27.7-10.1 5.7 19.6 13.2 40 22.5 60.9-9.2 20.8-16.6 41.1-22.2 60.6-9.9-3.1-19.3-6.5-28-10.2zM310 490c-13.6-7.8-19.5-37.5-14.9-75.7 1.1-9.4 2.9-19.3 5.1-29.4 19.6 4.8 41 8.5 63.5 10.9 13.5 18.5 27.5 35.3 41.6 50-32.6 30.3-63.2 46.9-84 46.9-4.5-.1-8.3-1-11.3-2.7zm237.2-76.2c4.7 38.2-1.1 67.9-14.6 75.8-3 1.8-6.9 2.6-11.5 2.6-20.7 0-51.4-16.5-84-46.6 14-14.7 28-31.4 41.3-49.9 22.6-2.4 44-6.1 63.6-11 2.3 10.1 4.1 19.8 5.2 29.1zm38.5-66.7c-8.6 3.7-18 7-27.7 10.1-5.7-19.6-13.2-40-22.5-60.9 9.2-20.8 16.6-41.1 22.2-60.6 9.9 3.1 19.3 6.5 28.1 10.2 35.4 15.1 58.3 34.9 58.3 50.6-.1 15.7-23 35.6-58.4 50.6zM320.8 78.4z"/><circle cx="420.9" cy="296.5" r="45.7"/><path d="M520.5 78.1z"/></g></svg>
+</file>
+
+<file path="src/MovieSearch.jsx">
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const API_KEY = '96d6e812cf355a07e7026acbd3cd93cb'; 
+
+function MovieSearch() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [selected, setSelected] = useState([]);
+
+  const searchMovies = async () => {
+    if (!query.trim()) return;
+
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}`
+    );
+    setResults(response.data.results);
+  };
+
+  const toggleSelect = (movie) => {
+    if (selected.find((m) => m.id === movie.id)) {
+      setSelected(selected.filter((m) => m.id !== movie.id));
+    } else {
+      setSelected([...selected, movie]);
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Search Movies You've Watched</h2>
+      <input
+        className="border p-2 w-full"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search for a movie"
+      />
+      <button onClick={searchMovies} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+        Search
+      </button>
+
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        {results.map((movie) => (
+          <div
+            key={movie.id}
+            onClick={() => toggleSelect(movie)}
+            className={`cursor-pointer p-2 border rounded ${
+              selected.find((m) => m.id === movie.id) ? 'bg-green-200' : ''
+            }`}
+          >
+            <strong>{movie.title}</strong> ({movie.release_date?.split('-')[0]})
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        <h3 className="font-bold">Selected Movies:</h3>
+        <ul>
+          {selected.map((movie) => (
+            <li key={movie.id}>{movie.title}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default MovieSearch;
+</file>
+
+<file path="src/reportWebVitals.js">
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+</file>
+
+<file path="src/setupTests.js">
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+</file>
+
+<file path=".firebaserc">
+{
+  "projects": {
+    "default": "friendflix-8ab05"
+  }
+}
+</file>
+
+<file path=".nvmrc">
+18
+</file>
+
+<file path=".vercelignore">
+node_modules
+build
+</file>
+
+<file path="craco.config.js">
+module.exports = {};
+</file>
+
+<file path="firebase.json">
+{
+  "hosting": {
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
+</file>
+
+<file path="vercel.json">
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+</file>
+
+<file path="public/index.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!-- PWA / App meta -->
+    <meta name="theme-color" content="#09090f" />
+    <meta name="description" content="FriendFlix — Match with people who share your cinematic taste. Swipe movies, find friends, join lounges and chat." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FriendFlix" />
+
+    <!-- SEO -->
+    <meta name="keywords" content="movies, friends, social, chat, film, matching, group chat" />
+    <meta name="author" content="Fathima Jabbar" />
+    <meta property="og:title" content="FriendFlix — Find Your Movie Tribe" />
+    <meta property="og:description" content="Match with friends through movies you love." />
+    <meta property="og:type" content="website" />
+
+    <!-- Icons -->
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Google Fonts preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <title>FriendFlix</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run FriendFlix.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
+</file>
+
+<file path="public/manifest.json">
+{
+  "short_name": "FriendFlix",
+  "name": "FriendFlix — Find Your Movie Tribe",
+  "description": "Match with friends through movies you love. Group chats, lounges, swipe mode and more.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#09090f",
+  "background_color": "#09090f",
+  "categories": ["social", "entertainment"],
+  "lang": "en"
+}
+</file>
+
+<file path="src/components/GroupChat.css">
+/* ── Group Chat Layout ── */
+.group-chat-container {
+  max-width: 860px;
+  margin: 0 auto;
+  /* dvh = dynamic viewport height, handles iOS keyboard correctly */
+  height: calc(100dvh - var(--header-height));
+  display: flex;
+  flex-direction: column;
+  animation: pageIn 0.35s ease forwards;
+  position: relative;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  z-index: 500;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 10px;
+  z-index: 100;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+/* ── Messages ── */
+.message-wrapper { display: flex; width: 100%; align-items: flex-end; gap: 8px; }
+.message-wrapper.sent     { justify-content: flex-end; }
+.message-wrapper.received { justify-content: flex-start; }
+
+.message-bubble-wrapper {
+  max-width: min(72%, 360px);
+  display: flex;
+  flex-direction: column;
+}
+.message-wrapper.sent     .message-bubble-wrapper { align-items: flex-end; }
+.message-wrapper.received .message-bubble-wrapper { align-items: flex-start; }
+
+.sender-name {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  margin-left: 10px;
+  font-weight: 600;
+}
+
+.message-bubble {
+  padding: 11px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  word-break: break-word;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.message-wrapper.sent .message-bubble {
+  background: var(--accent-gradient);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.message-wrapper.received .message-bubble {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+/* ── Input area ── */
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 2px;
+  padding-bottom: var(--safe-bottom);
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  padding: 13px 18px;
+  border-radius: 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-family);
+  transition: all 0.25s ease;
+  /* Prevent iOS zoom on focus */
+  font-size: max(16px, 0.95rem);
+}
+.chat-input:focus {
+  outline: none;
+  border-color: rgba(0,198,255,0.5);
+  background: rgba(255,255,255,0.09);
+  box-shadow: 0 0 16px rgba(0,198,255,0.12);
+}
+.chat-send-btn {
+  border-radius: 28px;
+  padding: 13px 22px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chat-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+/* ── Event card ── */
+.event-card-wrapper { display: flex; justify-content: center; margin: 6px 0; width: 100%; }
+.event-card {
+  padding: 16px 20px;
+  text-align: center;
+  border: 1px solid rgba(0,230,118,0.25);
+  background: rgba(0,230,118,0.06);
+  border-radius: 18px;
+  max-width: min(280px, 90vw);
+}
+.event-card h3 { margin: 0 0 4px; font-size: 0.95rem; }
+.event-card p  { margin: 0 0 12px; color: var(--text-secondary); font-size: 0.82rem; }
+.event-time {
+  background: rgba(0,0,0,0.35);
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--success-color);
+  display: inline-block;
+}
+
+/* ── Plan button & modal ── */
+.plan-btn {
+  border-radius: 50%;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; padding: 0; flex-shrink: 0;
+}
+.planner-modal {
+  position: absolute;
+  bottom: calc(68px + var(--safe-bottom));
+  left: 0; right: 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  background: rgba(10, 10, 18, 0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 100;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+}
+.planner-modal h3 { margin: 0 0 14px; text-align: center; font-size: 1.05rem; }
+
+@media (max-width: 480px) {
+  .chat-header { padding: 10px 12px; gap: 10px; }
+  .chat-messages { padding: 12px 10px; }
+  .chat-input { padding: 12px 14px; }
+  .chat-send-btn { padding: 12px 16px; font-size: 0.85rem; }
+  .message-bubble-wrapper { max-width: 80%; }
+}
+</file>
+
+<file path="src/components/MovieSwiper.css">
+.swiper-container {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 12px 16px calc(var(--nav-height, 64px) + var(--safe-bottom, 0px) + 36px);
+  min-height: calc(100dvh - var(--header-height, 60px));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.swiper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.swiper-header h2 {
+  font-family: var(--font-display, inherit);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.nav-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateX(-2px);
+}
+
+.swiper-hint {
+  color: var(--text-secondary, #a1a1aa);
+  font-size: 0.86rem;
+  margin: 0 0 14px;
+}
+
+/* ── Proportional Theatrical Poster Stack ── */
+.card-stack {
+  position: relative;
+  height: clamp(370px, 52vh, 470px) !important;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto 0;
+}
+
+.swipe-card {
+  position: absolute;
+  width: min(315px, 86vw);
+  height: 100% !important;
+  cursor: grab;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #121218;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.swipe-card:active {
+  cursor: grabbing;
+}
+
+.card-poster {
+  width: 100%;
+  height: 80%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
+}
+
+.card-info {
+  height: 20%;
+  padding: 12px 18px;
+  text-align: left;
+  background: #0a0a0f;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-info h3 {
+  font-family: var(--font-display, inherit);
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ffffff;
+}
+
+.card-info p {
+  margin: 2px 0 0;
+  color: #a1a1aa;
+  font-size: 0.82rem;
+}
+
+/* ── Floating Controls Bar (Elevated Above Dock) ── */
+.swiper-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 10;
+}
+
+.skip-btn {
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  padding: 12px 28px !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  transition: all 0.2s ease;
+}
+
+.skip-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.like-btn {
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  padding: 12px 34px !important;
+  background: var(--accent-gradient, linear-gradient(135deg, #e50914, #b81d24)) !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  border: none !important;
+  box-shadow: 0 6px 22px rgba(229, 9, 20, 0.45) !important;
+  transition: all 0.2s ease;
+}
+
+.like-btn:hover {
+  filter: brightness(1.12) !important;
+  transform: translateY(-1px);
+}
+</file>
+
+<file path="src/components/Navbar.css">
+.bottom-nav {
+  position: fixed !important;
+  /* Always anchors cleanly to the bottom with safe-area support */
+  bottom: 12px !important;
+  bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 24px) !important;
+  max-width: 520px !important;
+  /* Highest possible z-index so nothing can ever overlay it */
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+}
+
+.bottom-nav.hidden {
+  transform: translateX(-50%) translateY(140%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.bottom-nav-inner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  height: 62px !important;
+  padding: 0 6px !important;
+  background: rgba(10, 10, 14, 0.94) !important;
+  backdrop-filter: blur(28px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+}
+
+.nav-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  background: none !important;
+  border: none !important;
+  padding: 6px 10px !important;
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  flex: 1 !important;
+  color: var(--text-muted, #71717a) !important;
+  transition: color 0.2s ease, transform 0.2s ease !important;
+}
+
+.nav-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.nav-label {
+  font-size: 0.64rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.nav-item:hover { 
+  color: var(--text-secondary, #d4d4d8) !important; 
+}
+
+.nav-item.active { 
+  color: #ffffff !important; 
+}
+
+.nav-item.active .nav-icon {
+  transform: translateY(-1px) scale(1.08) !important;
+  color: #e50914 !important;
+  filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.6)) !important;
+}
+
+.nav-indicator {
+  position: absolute !important;
+  bottom: 2px !important;
+  width: 14px !important;
+  height: 2.5px !important;
+  border-radius: 4px !important;
+  background: #e50914 !important;
+  box-shadow: 0 0 8px #e50914 !important;
+}
+
+@media (max-width: 480px) {
+  .bottom-nav {
+    width: calc(100% - 16px) !important;
+    bottom: max(8px, env(safe-area-inset-bottom, 8px)) !important;
+  }
+  .bottom-nav-inner {
+    height: 58px !important;
+  }
+  .nav-item {
+    padding: 4px 6px !important;
+  }
+}
+</file>
+
+<file path="src/components/SelectedMovies.jsx">
+import React from "react";
+import "./SelectedMovies.css";
+
+export default function SelectedMovies({ movies, onBack }) {
+  return (
+    <div className="selected-movies-container page-wrapper">
+      <div className="selector-top" style={{ marginBottom: "20px" }}>
+        <h2>Your Library 🎬</h2>
+      </div>
+      <div className="movies-grid">
+        {movies.map((movie) => (
+          <div key={movie.id} className="movie-item">
+            <img
+              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              alt={movie.title}
+            />
+            <div className="movie-title">{movie.title}</div>
+          </div>
+        ))}
+      </div>
+      <button className="btn-secondary" onClick={onBack} style={{ marginTop: "2rem" }}>
+        ← Back
+      </button>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/UserProfile.css">
+.profile-container {
+  max-width: 860px;
+  margin: 0 auto;
+  /* 150px bottom padding ensures the last row of posters clears the 64px floating dock */
+  padding: 20px 20px 150px !important;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 14px;
+}
+
+.profile-header h2 {
+  font-family: var(--font-display, inherit);
+  margin: 0;
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.profile-top {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-primary, #e50914);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.3);
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-info h3 {
+  font-family: var(--font-display, inherit);
+  margin: 0 0 6px;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bio-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.bio-display p {
+  margin: 0;
+  color: var(--text-secondary, #a1a1aa);
+  font-size: 0.92rem;
+  font-style: italic;
+  flex: 1;
+}
+
+.edit-bio-btn {
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.edit-bio-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.bio-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.bio-textarea {
+  width: 100%;
+  height: 72px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.92rem;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.bio-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary, #e50914);
+}
+
+.movies-heading {
+  font-family: var(--font-display, inherit);
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ── Clean 4-Column Poster Grid ── */
+.profile-movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  /* Extra bottom margin to ensure zero overlap with any parent container */
+  margin-bottom: 40px;
+}
+
+.profile-movie-card {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  aspect-ratio: 2/3;
+  background: #14141c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.profile-movie-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.profile-movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 16px 14px 160px !important;
+  }
+  .profile-movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+</file>
+
+<file path="src/index.js">
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Register PWA service worker for offline support and installability
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((reg) => {
+        console.log('[FriendFlix] SW registered:', reg.scope);
+      })
+      .catch((err) => {
+        console.warn('[FriendFlix] SW registration failed:', err);
+      });
+  });
+}
+
+reportWebVitals();
+</file>
+
+<file path="src/components/Chat.css">
+/* Reuse GroupChat layout, just override container */
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  /* dvh so iOS keyboard doesn't push content off-screen */
+  height: calc(100dvh - var(--header-height));
+  display: flex;
+  flex-direction: column;
+  animation: pageIn 0.35s ease forwards;
+  position: relative;
+}
+
+/* ── Chat Action Menu ── */
+.chat-action-menu {
+  position: absolute;
+  top: 66px;
+  right: 10px;
+  background: #0f0f1b;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  width: min(210px, 88vw);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+  backdrop-filter: none;
+}
+
+.chat-action-btn {
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  text-align: left;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  touch-action: manipulation;
+}
+
+.chat-action-btn:hover {
+  background: #2d2d3f;
+  border-color: var(--accent-start);
+  transform: translateX(3px);
+}
+
+.chat-action-btn.danger {
+  background: rgba(255, 82, 82, 0.1);
+  border-color: rgba(255, 82, 82, 0.3);
+  color: #ff8a8a;
+}
+
+.chat-action-btn.danger:hover {
+  background: rgba(255, 82, 82, 0.2);
+  border-color: #ff5252;
+}
+
+@media (max-width: 480px) {
+  .chat-container { height: calc(100dvh - var(--header-height)); }
+  .chat-action-menu { top: 60px; right: 8px; }
+}
+</file>
+
+<file path="src/components/FriendMatches.css">
+.matches-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px 0 calc(var(--nav-height) + var(--safe-bottom) + 32px);
+}
+
+.matches-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.matches-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+.matches-header p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 2px 0 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.match-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.match-rank {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.match-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.match-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.match-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.match-title-row h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.clean-badge {
+  background: rgba(229, 9, 20, 0.12);
+  color: #ff4b55;
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.match-bio {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.compat-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.compat-bar {
+  flex: 1;
+  max-width: 140px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.compat-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 2px;
+}
+
+.compat-percentage {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.shared-films-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-action-btn {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 580px) {
+  .match-card {
+    flex-wrap: wrap;
+  }
+  .match-rank {
+    display: none;
+  }
+  .message-action-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+</file>
+
+<file path="src/components/FriendMatches.jsx">
+import React from "react";
+import "./FriendMatches.css";
+
+export default function FriendMatches({ matches, onBack, onStartChat }) {
+  if (!matches || !Array.isArray(matches)) {
+    return (
+      <div className="matches-wrapper page-wrapper">
+        <div className="empty-state"><p>Calculating compatibility...</p></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="matches-wrapper page-wrapper">
+      <div className="matches-header">
+        <button className="btn-secondary back-btn" onClick={onBack}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
+        <div>
+          <h2>Taste Matches</h2>
+          <p>{matches.length} profiles align with your cinematic library</p>
+        </div>
+      </div>
+
+      {matches.length === 0 ? (
+        <div className="empty-state">
+          <h3>No matches detected yet</h3>
+          <p>Add more popular movies to your library to connect with viewers who share your taste.</p>
+        </div>
+      ) : (
+        <div className="matches-list">
+          {matches
+            .sort((a, b) => b.matchPercentage - a.matchPercentage)
+            .map((match, i) => (
+              <div key={match.userId} className="match-card glass-card">
+                <div className="match-rank">0{i + 1}</div>
+                <img
+                  src={match.photoURL || `https://ui-avatars.com/api/?name=${match.displayName}&background=random`}
+                  alt={match.displayName}
+                  className="match-avatar"
+                />
+                <div className="match-body">
+                  <div className="match-title-row">
+                    <h4>{match.displayName}</h4>
+                    {match.badge && (
+                      <span className="clean-badge">{match.badge.name}</span>
+                    )}
+                  </div>
+                  {match.bio && <p className="match-bio">"{match.bio}"</p>}
+                  
+                  <div className="compat-bar-wrap">
+                    <div className="compat-bar">
+                      <div className="compat-fill" style={{ width: `${match.matchPercentage}%` }} />
+                    </div>
+                    <span className="compat-percentage">{match.matchPercentage}%</span>
+                  </div>
+
+                  <p className="shared-films-text">
+                    Shared: {match.commonMovies.slice(0, 3).map((m) => m.title).join(", ")}
+                    {match.commonMovies.length > 3 ? ` +${match.commonMovies.length - 3} more` : ""}
+                  </p>
+                </div>
+                
+                <button
+                  className="btn-primary message-action-btn"
+                  onClick={() => onStartChat({
+                    uid: match.userId,
+                    displayName: match.displayName,
+                    photoURL: match.photoURL,
+                  })}
+                >
+                  Message
+                </button>
+              </div>
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/MovieSelector.jsx">
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./MovieSelector.css";
+
+const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
+
+export default function MovieSelector({ onSelectionComplete, initialSelected = [], onBack }) {
+  const [movies, setMovies] = useState([]);
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState(initialSelected);
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
+  const fetchMovies = async (searchTerm) => {
+    try {
+      const url = searchTerm
+        ? `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchTerm)}`
+        : `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&page=1`;
+      const res = await axios.get(url);
+      setMovies((res.data.results || []).filter((m) => m.poster_path));
+    } catch {
+      alert("Could not reach TMDB. Please check your network connection.");
+    }
+  };
+
+  const handleSearch = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    fetchMovies(val);
+  };
+
+  const toggleSelect = (movie) => {
+    setSelected((prev) =>
+      prev.find((m) => m.id === movie.id)
+        ? prev.filter((m) => m.id !== movie.id)
+        : [...prev, movie]
+    );
+  };
+
+  return (
+    <div className="selector-wrapper page-wrapper">
+      <div className="selector-top">
+        <div className="selector-header-row">
+          {onBack && (
+            <button className="nav-back-btn" onClick={onBack} title="Go Back">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              <span>Back</span>
+            </button>
+          )}
+          <div>
+            <h2>Curate Your Taste</h2>
+            <p>Select at least 3 films to calibrate your matching algorithm</p>
+          </div>
+        </div>
+        
+        <div className="selector-search-wrap">
+          <span className="search-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <input
+            type="text"
+            className="selector-search"
+            placeholder="Search titles, directors, genres..."
+            value={query}
+            onChange={handleSearch}
+          />
+        </div>
+      </div>
+
+      <div className="movie-grid">
+        {movies.map((movie) => {
+          const isSelected = !!selected.find((m) => m.id === movie.id);
+          return (
+            <div
+              key={movie.id}
+              className={`movie-card ${isSelected ? "selected" : ""}`}
+              onClick={() => toggleSelect(movie)}
+            >
+              <img
+                className="movie-poster"
+                src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`}
+                alt={movie.title}
+              />
+              {isSelected && (
+                <div className="selected-overlay">
+                  <div className="selected-check-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                </div>
+              )}
+              <div className="movie-title-bar">{movie.title}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="selector-bottom-bar">
+        <span className="selection-count">
+          <strong>{selected.length}</strong> selected {selected.length >= 3 ? "(Ready)" : `(Need ${3 - selected.length} more)`}
+        </span>
+        <button
+          className="btn-primary"
+          onClick={() => {
+            if (selected.length >= 3) onSelectionComplete(selected);
+            else alert("Please select at least 3 films to continue.");
+          }}
+          disabled={selected.length < 3}
+          style={{ opacity: selected.length < 3 ? 0.45 : 1, padding: "10px 24px", borderRadius: "999px" }}
+        >
+          Confirm Selection
+        </button>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/firebase.js">
+import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,          // <-- Use getDoc for single document fetch
+  getDocs,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  where,
+  updateDoc,
+} from "firebase/firestore";
+
+// 🔥 Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCgH1tPmkw2W8uT3qipFawqcT0h44uY-sw",
+  authDomain: "friendflix-8ab05.firebaseapp.com",
+  projectId: "friendflix-8ab05",
+  storageBucket: "friendflix-8ab05.appspot.com",
+  messagingSenderId: "112255193703",
+  appId: "1:112255193703:web:43380b1005bbb3070b3ac2",
+  measurementId: "G-NEXZTYPEVF",
+};
+
+// 🔌 Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+// 🧠 Save new user profile
+async function saveUserProfile(user) {
+  if (!user) return;
+  const userDoc = doc(db, "users", user.uid);
+  const docSnap = await getDoc(userDoc);  // <-- Corrected here
+
+  if (!docSnap.exists()) {
+    await setDoc(userDoc, {
+      displayName: user.displayName || "Friend",
+      photoURL: user.photoURL || "",
+      bio: "I'm looking for movie buddies!",
+      selectedMovies: [],
+    });
+  } else if (!docSnap.data().photoURL) {
+    // Retroactively add photoURL if missing
+    await setDoc(userDoc, { photoURL: user.photoURL || "" }, { merge: true });
+  }
+}
+
+// 📝 Update user bio
+async function updateUserBio(userId, bio) {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, { bio });
+}
+
+async function updateUserPhoto(userId, photoURL) {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, { photoURL });
+}
+
+// 🔐 Google sign in
+async function signInWithGoogle() {
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+  await saveUserProfile(user);
+}
+
+// 🔓 Logout
+async function logout() {
+  await firebaseSignOut(auth);
+}
+
+// 🎬 Save selected movies to Firestore
+async function saveSelectedMovies(movies) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const userDoc = doc(db, "users", user.uid);
+  await setDoc(userDoc, { selectedMovies: movies }, { merge: true });
+}
+
+const TMDB_GENRES = {
+  28: { name: "Action", emoji: "" },
+  12: { name: "Adventure", emoji: "" },
+  16: { name: "Animation", emoji: "" },
+  35: { name: "Comedy", emoji: "" },
+  80: { name: "Crime", emoji: "" },
+  99: { name: "Documentary", emoji: "" },
+  18: { name: "Drama", emoji: "" },
+  10751: { name: "Family", emoji: "" },
+  14: { name: "Fantasy", emoji: "" },
+  36: { name: "History", emoji: "" },
+  27: { name: "Horror", emoji: "" },
+  10402: { name: "Music", emoji: "" },
+  9648: { name: "Mystery", emoji: "" },
+  10749: { name: "Romance", emoji: "" },
+  878: { name: "Sci-Fi", emoji: "" },
+  53: { name: "Thriller", emoji: "" },
+  10752: { name: "War", emoji: "" },
+  37: { name: "Western", emoji: "" }
+};
+
+function calculateBadge(movies) {
+  if (!movies || !movies.length) return { name: "Cinephile", emoji: "" };
+  const genreCounts = {};
+  movies.forEach(m => {
+    if (m.genre_ids) {
+      m.genre_ids.forEach(id => {
+        genreCounts[id] = (genreCounts[id] || 0) + 1;
+      });
+    }
+  });
+  
+  if (Object.keys(genreCounts).length === 0) return { name: "Cinephile", emoji: "" };
+
+  const topGenreId = Object.keys(genreCounts).reduce((a, b) => genreCounts[a] > genreCounts[b] ? a : b);
+  return TMDB_GENRES[topGenreId] || { name: "Cinephile", emoji: "" };
+}
+
+async function findFriendMatches(userId, selectedMovies) {
+  if (!selectedMovies.length) return [];
+
+  // Fetch current user to get their blocked list
+  const currentUserDoc = await getDoc(doc(db, "users", userId));
+  const currentUserData = currentUserDoc.exists() ? currentUserDoc.data() : {};
+  const blockedByMe = currentUserData.blockedUsers || [];
+
+  const usersRef = collection(db, "users");
+  const snapshot = await getDocs(usersRef);
+
+  const matches = [];
+
+  snapshot.forEach((docSnap) => {
+    if (docSnap.id === userId) return; // skip current user
+
+    const data = docSnap.data();
+
+    // Check blocks
+    const blockedByThem = data.blockedUsers || [];
+    if (blockedByMe.includes(docSnap.id) || blockedByThem.includes(userId)) {
+      return; // skip if either user blocked the other
+    }
+
+    const commonMovies = data.selectedMovies?.filter((movie) =>
+      selectedMovies.some((m) => m.id === movie.id)
+    );
+
+    if (commonMovies && commonMovies.length >= 1) {
+      const matchPercentage = Math.round((commonMovies.length / selectedMovies.length) * 100);
+      const userBadge = calculateBadge(data.selectedMovies);
+
+      matches.push({
+        userId: docSnap.id,
+        displayName: data.displayName || "Friend",
+        photoURL: data.photoURL || "",
+        bio: data.bio || "I'm looking for movie buddies!",
+        commonMovies,
+        matchPercentage,
+        badge: userBadge
+      });
+    }
+  });
+  return matches;
+}
+
+// 💬 Chat helper: generate consistent chat ID
+function getChatId(userA, userB) {
+  return [userA, userB].sort().join("_");
+}
+
+// 💬 Send a chat message
+async function sendMessage(chatId, senderId, text, type = "text", eventDetails = null, senderPhoto = "") {
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const msgData = {
+    senderId,
+    senderPhoto,
+    text,
+    type,
+    timestamp: new Date(),
+  };
+  if (eventDetails) msgData.eventDetails = eventDetails;
+  await addDoc(messagesRef, msgData);
+
+  // Update parent chat for notifications
+  const chatRef = doc(db, "chats", chatId);
+  await setDoc(chatRef, {
+    lastMessage: type === "event" ? "📅 Scheduled a movie night!" : text,
+    lastMessageTime: new Date(),
+    lastSenderId: senderId,
+  }, { merge: true });
+}
+
+// 💬 Send a group chat message (works for Lounges and Custom Groups)
+async function sendGroupMessage(chatId, senderId, senderName, text, type = "text", eventDetails = null, senderPhoto = "") {
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const msgData = {
+    senderId,
+    senderName,
+    senderPhoto,
+    text,
+    type,
+    timestamp: new Date(),
+  };
+  if (eventDetails) msgData.eventDetails = eventDetails;
+  await addDoc(messagesRef, msgData);
+
+  // Update parent chat for notifications
+  const chatRef = doc(db, "chats", chatId);
+  await setDoc(chatRef, {
+    lastMessage: type === "event" ? `📅 ${senderName} scheduled a movie night!` : `${senderName}: ${text}`,
+    lastMessageTime: new Date(),
+    lastSenderId: senderId,
+  }, { merge: true });
+}
+
+// 📡 Listen for chat messages in realtime
+function listenToChatMessages(chatId, callback) {
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const q = query(messagesRef, orderBy("timestamp"));
+  return onSnapshot(q, (snapshot) => {
+    const messages = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    callback(messages);
+  });
+}
+
+// 📡 Listen for group chat messages
+function listenToGroupMessages(chatId, callback) {
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const q = query(messagesRef, orderBy("timestamp"));
+  return onSnapshot(q, (snapshot) => {
+    const messages = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    callback(messages);
+  });
+}
+
+// 🔄 Create or get chat document
+async function createOrGetChat(currentUserId, otherUserId) {
+  const chatId = getChatId(currentUserId, otherUserId);
+  const chatRef = doc(db, "chats", chatId);
+  const chatDoc = await getDoc(chatRef); // <-- Fixed here to getDoc for document
+
+  if (!chatDoc.exists()) {
+    await setDoc(chatRef, {
+      messages: [],
+      participants: [currentUserId, otherUserId],
+    });
+  }
+
+  return chatId;
+}
+
+// 🚫 Block a user
+async function blockUser(currentUserId, targetUserId) {
+  const userDoc = doc(db, "users", currentUserId);
+  const docSnap = await getDoc(userDoc);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const blocked = data.blockedUsers || [];
+    if (!blocked.includes(targetUserId)) {
+      await setDoc(userDoc, { blockedUsers: [...blocked, targetUserId] }, { merge: true });
+    }
+  }
+}
+
+// 🚩 Report a user
+async function reportUser(currentUserId, targetUserId, reason) {
+  const reportsRef = collection(db, "reports");
+  await addDoc(reportsRef, {
+    reporterId: currentUserId,
+    reportedId: targetUserId,
+    reason: reason,
+    timestamp: new Date(),
+  });
+}
+
+// 👨‍👩‍👧‍👦 Create a custom friend group
+async function createCustomGroup(groupName, participantIds, creatorId) {
+  const chatsRef = collection(db, "chats");
+  const newGroup = await addDoc(chatsRef, {
+    name: groupName,
+    participants: participantIds,
+    creatorId: creatorId,
+    isCustomGroup: true,
+    createdAt: new Date(),
+  });
+  return newGroup.id;
+}
+
+// 📋 Listen to all custom groups a user is in
+function listenToUserGroups(userId, callback) {
+  const chatsRef = collection(db, "chats");
+  const q = query(
+    chatsRef,
+    where("participants", "array-contains", userId),
+    where("isCustomGroup", "==", true)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const groups = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    callback(groups);
+  });
+}
+
+// 🔔 Listen to all chats a user is part of (for notifications)
+function listenToAllUserChats(userId, callback) {
+  const chatsRef = collection(db, "chats");
+  const q = query(
+    chatsRef,
+    where("participants", "array-contains", userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const chats = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    callback(chats);
+  });
+}
+
+export {
+  auth,
+  db,
+  provider,
+  signInWithGoogle,
+  logout,
+  saveSelectedMovies,
+  findFriendMatches,
+  getChatId,
+  listenToChatMessages,
+  sendMessage,
+  createOrGetChat,
+  onAuthStateChanged,
+  blockUser,
+  reportUser,
+  sendGroupMessage,
+  listenToGroupMessages,
+  createCustomGroup,
+  listenToUserGroups,
+  updateUserBio,
+  updateUserPhoto,
+  listenToAllUserChats,
+};
+</file>
+
+<file path=".gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# cloned repos (not part of this project)
+/friendflix-client
+/friendflix-backend
+</file>
+
+<file path="package.json">
+{
+  "name": "friendflix-client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@craco/craco": "^7.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.6.8",
+    "firebase": "^11.9.1",
+    "framer-motion": "^12.38.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
+</file>
+
+<file path="src/components/MovieSelector.css">
+.selector-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 12px 140px; /* leaves room for sticky bar + dock */
+  box-sizing: border-box;
+}
+
+.selector-top {
+  margin-bottom: 24px;
+}
+
+.selector-top h2 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.selector-top p {
+  font-size: 0.9rem;
+  color: #a1a1aa;
+  margin: 0 0 18px;
+}
+
+.selector-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 520px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  color: #71717a;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.selector-search {
+  width: 100%;
+  padding: 12px 18px 12px 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.selector-search:focus {
+  outline: none;
+  border-color: #e50914 !important;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 16px rgba(229, 9, 20, 0.3) !important;
+}
+
+/* ── Movie Grid ── */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.movie-card {
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  aspect-ratio: 2/3;
+  background: #14141a;
+  border: 2px solid transparent !important;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* FORCED RED SELECTION (replaces cyan) */
+.movie-card.selected {
+  border-color: #e50914 !important;
+  box-shadow: 0 0 18px rgba(229, 9, 20, 0.5) !important;
+}
+
+.movie-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.selected-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(229, 9, 20, 0.35) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.movie-title-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(6, 6, 8, 0.95) 15%, transparent 100%);
+  padding: 20px 8px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+/* ── Sticky Selection Bar at Bottom (Above Dock) ── */
+.selector-bottom-bar {
+  position: fixed !important;
+  bottom: 84px !important; /* Clearly sits above the 60px bottom nav */
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 32px) !important;
+  max-width: 500px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 20px !important;
+  background: rgba(14, 14, 18, 0.94) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8) !important;
+  z-index: 150 !important;
+  box-sizing: border-box !important;
+}
+
+.selection-count {
+  font-size: 0.86rem !important;
+  font-weight: 600 !important;
+  color: #d4d4d8 !important;
+}
+
+@media (max-width: 480px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+</file>
+
+<file path="src/App.css">
+/* ── Global Layout & Typography ── */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* ── Minimal Cinema Header ── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 68px;
+  margin: 0 -20px 18px;
+  padding: 0 24px;
+  padding-top: var(--safe-top);
+  background: rgba(6, 6, 8, 0.92);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.brand-pillar {
+  width: 4px;
+  height: 24px;
+  background: var(--accent-primary);
+  border-radius: 2px;
+  box-shadow: 0 0 16px var(--accent-primary);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn-header {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+.icon-btn-header:hover { color: #ffffff; }
+
+.header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.header-avatar:hover {
+  transform: scale(1.06);
+  border-color: var(--accent-primary);
+}
+
+.signin-button {
+  background: var(--accent-gradient);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* ── Landing Page ── */
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(85vh - 68px);
+  text-align: center;
+  padding: 30px 16px;
+}
+
+.landing-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent-primary);
+  margin-bottom: 18px;
+}
+
+.landing-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6.5vw, 4.4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.landing-title .accent {
+  background: linear-gradient(135deg, #ffffff 40%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.landing-subtitle {
+  font-size: 1.08rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+  line-height: 1.6;
+  margin-bottom: 36px;
+}
+
+.landing-cta {
+  background: #ffffff;
+  color: #060608;
+  font-weight: 700;
+  padding: 16px 38px;
+  border-radius: 10px;
+  font-size: 1.02rem;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.landing-cta:hover { transform: translateY(-2px); background: #f0f0f2; }
+
+/* ── Home Feed (150px bottom padding guarantees dock clearance) ── */
+.home-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  padding-bottom: 150px !important;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.section-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+.section-link {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 500;
+}
+.section-link:hover { color: #ffffff; }
+
+/* ── Stories Row ── */
+.stories-scroll {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.stories-scroll::-webkit-scrollbar { display: none; }
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.avatar-ring {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, rgba(255, 255, 255, 0.25) 100%);
+}
+
+.avatar-ring img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-elevated);
+}
+
+.match-tag {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #000;
+  border: 1px solid var(--accent-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.story-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  max-width: 72px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty-story-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+.add-plus {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+/* ── Full-Bleed 3D Cinema Hero ── */
+.cinema-hero {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 34px;
+  background: #0d0d12;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.75);
+}
+
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 25%;
+}
+
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(to top, rgba(6, 6, 8, 0.96) 20%, rgba(6, 6, 8, 0.55) 65%, transparent 100%),
+    radial-gradient(circle at 100% 0%, rgba(229, 9, 20, 0.22), transparent 50%);
+}
+
+.hero-details {
+  position: relative;
+  z-index: 2;
+  max-width: 580px;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--accent-primary);
+  margin-bottom: 10px;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.hero-desc {
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 22px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-btn-row {
+  display: flex;
+  gap: 14px;
+}
+
+/* ── Live Movie Poster Rails ── */
+.poster-scroll-rail {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+.poster-scroll-rail::-webkit-scrollbar { display: none; }
+
+.rail-poster-card {
+  position: relative;
+  flex: 0 0 148px;
+  aspect-ratio: 2/3;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #14141c;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+}
+.rail-poster-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.rail-poster-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.poster-meta {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6, 6, 8, 0.95) 0%, rgba(6, 6, 8, 0.25) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.live-indicator, .add-badge, .score-badge {
+  align-self: flex-start;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+.live-indicator { background: rgba(229, 9, 20, 0.92); color: #fff; }
+.add-badge { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); color: #fff; }
+.score-badge { background: rgba(16, 185, 129, 0.9); color: #fff; }
+
+.poster-meta h5 {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.empty-rail-placeholder {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+}
+.empty-rail-placeholder p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Community Hub ── */
+.action-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.action-tile {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.action-tile:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-3px);
+}
+
+.tile-category {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.action-tile h4 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.action-tile p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Reusable Minimal Back Button ── */
+.nav-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.nav-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateX(-2px);
+}
+
+.selector-header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 580px) {
+  .cinema-hero {
+    min-height: 260px;
+    padding: 22px;
+  }
+  .action-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-dashboard {
+    padding-bottom: 170px !important;
+  }
+}
+</file>
+
+<file path="src/index.css">
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
+
+:root {
+  --bg-obsidian: #060608;
+  --bg-elevated: #0f0f14;
+  --panel-bg: rgba(18, 18, 24, 0.78);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border-top: rgba(255, 255, 255, 0.16);
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #636366;
+  
+  /* Netflix Crimson + Cinema Glow */
+  --accent-primary: #e50914;
+  --accent-secondary: #ff2a5f;
+  --accent-gradient: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+  --glow-red: rgba(229, 9, 20, 0.28);
+  
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  
+  --nav-height: 64px;
+  --header-height: 60px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: -webkit-fill-available; }
+
+body {
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  background-color: var(--bg-obsidian);
+  background-image:
+    radial-gradient(circle at 50% -20%, rgba(229, 9, 20, 0.14), transparent 55%),
+    radial-gradient(circle at 85% 90%, rgba(255, 255, 255, 0.03), transparent 45%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.page-wrapper {
+  animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 28px);
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 10px; }
+
+/* ── Spatial Glass Surfaces ── */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--panel-border);
+  border-top-color: var(--panel-border-top);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.btn-primary {
+  background: var(--accent-gradient);
+  color: #ffffff;
+  padding: 11px 22px;
+  box-shadow: 0 6px 20px var(--glow-red), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(229, 9, 20, 0.45);
+  filter: brightness(1.08);
+}
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 11px 20px;
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.empty-state {
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  margin-top: 16px;
+}
+.empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 12px; opacity: 0.6; }
+.empty-state h3 { margin: 0 0 6px; font-size: 1.1rem; color: var(--text-primary); font-weight: 600; }
+.empty-state p  { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+/* ==========================================================================
+   GLOBAL RESPONSIVE FIXES (Mobile, Tablet, Dynamic Viewports)
+   ========================================================================== */
+
+/* 1. Prevent body and viewport overflow jitter */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+/* 2. Responsive adjustments for mobile devices (under 640px) */
+@media (max-width: 640px) {
+  :root {
+    --nav-height: 58px;
+    --header-height: 56px;
+  }
+
+  .app-container {
+    padding: 0 14px;
+  }
+
+  /* Header adjustments */
+  .app-header {
+    height: 56px;
+    margin: 0 -14px 14px;
+    padding: 0 16px;
+  }
+
+  .logo {
+    font-size: 1.15rem;
+  }
+
+  /* Billboard & Hero Banner scaling */
+  .cinema-hero {
+    min-height: 240px;
+    padding: 20px 16px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem !important;
+  }
+
+  .hero-desc {
+    font-size: 0.85rem !important;
+    -webkit-line-clamp: 2;
+  }
+
+  .hero-btn-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .hero-btn-row button {
+    width: 100%;
+  }
+
+  /* Horizontal rails touch scroll */
+  .stories-scroll,
+  .poster-scroll-rail {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-left: 2px;
+    padding-right: 14px;
+  }
+
+  .rail-poster-card {
+    flex: 0 0 120px !important;
+    scroll-snap-align: start;
+  }
+
+  .story-item {
+    scroll-snap-align: start;
+  }
+
+  /* Discovery Swiper adjustments */
+  .swiper-container {
+    padding-top: 4px;
+  }
+
+  .card-stack {
+    height: clamp(300px, 46vh, 380px) !important;
+  }
+
+  .swipe-card {
+    width: min(290px, 90vw) !important;
+  }
+
+  /* Bottom bar placement: Avoid overlapping the floating dock */
+  .selector-bottom-bar {
+    width: calc(100% - 24px) !important;
+    padding: 10px 16px !important;
+    bottom: calc(var(--nav-height) + var(--safe-bottom) + 10px) !important;
+  }
+
+  .selection-count {
+    font-size: 0.82rem !important;
+  }
+
+  /* Floating Bottom Dock on Small Screens */
+  .bottom-nav {
+    width: calc(100% - 16px) !important;
+    bottom: calc(8px + var(--safe-bottom)) !important;
+  }
+
+  .bottom-nav-inner {
+    height: 56px !important;
+    padding: 0 4px !important;
+  }
+
+  .nav-item {
+    padding: 4px 6px !important;
+  }
+
+  .nav-label {
+    font-size: 0.58rem !important;
+  }
+
+  .nav-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Chat viewport adjustments */
+  .chat-container,
+  .group-chat-container {
+    height: calc(100dvh - var(--header-height) - 10px);
+  }
+
+  .message-bubble-wrapper {
+    max-width: 82% !important;
+  }
+}
+
+/* 3. Extremely small screens (under 360px) */
+@media (max-width: 360px) {
+  .nav-label {
+    display: none; /* Hide text labels so 6 icons fit cleanly */
+  }
+
+  .bottom-nav-inner {
+    height: 50px !important;
+  }
+}
+</file>
+
+<file path="src/components/UserProfile.jsx">
+import React, { useState, useEffect } from "react";
+import { db, updateUserBio, updateUserPhoto } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import "./UserProfile.css";
+
+export default function UserProfile({ user, selectedMovies = [], onBack }) {
+  const [bio, setBio] = useState("");
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [photoURL, setPhotoURL] = useState("");
+  const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setBio(data.bio || "I'm looking for movie buddies!");
+        setPhotoURL(data.photoURL || user.photoURL || "");
+      }
+    };
+    fetchProfile();
+  }, [user]);
+
+  const handleSaveBio = async () => {
+    setSaving(true);
+    await updateUserBio(user.uid, bio);
+    setSaving(false);
+    setIsEditingBio(false);
+  };
+
+  const handleSavePhoto = async () => {
+    setSaving(true);
+    await updateUserPhoto(user.uid, photoURL);
+    setSaving(false);
+    setIsEditingPhoto(false);
+  };
+
+  return (
+    <div className="profile-container glass-panel page-wrapper">
+      <div className="profile-header">
+        <button className="btn-secondary" onClick={onBack}>← Back</button>
+        <h2>Your Profile</h2>
+        <div style={{ width: "80px" }}></div>
+      </div>
+
+      <div className="profile-top">
+        <div style={{ position: "relative" }}>
+          <img 
+            src={photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=random`} 
+            alt="Avatar" 
+            className="profile-avatar"
+          />
+          <button 
+            className="btn-secondary" 
+            style={{ position: "absolute", bottom: "0", right: "0", padding: "5px 10px", borderRadius: "50%" }}
+            onClick={() => setIsEditingPhoto(!isEditingPhoto)}
+          >
+            📸
+          </button>
+        </div>
+        <div className="profile-info">
+          <h3>{user.displayName}</h3>
+          
+          {isEditingPhoto && (
+            <div className="glass-card" style={{ padding: "20px", marginTop: "15px", borderRadius: "16px" }}>
+              <p style={{ margin: "0 0 10px 0", fontSize: "0.9rem", fontWeight: "600" }}>Upload from your device</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      if (file.size > 1024 * 1024) {
+                        alert("File is too large! Please pick an image under 1MB.");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setPhotoURL(reader.result);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  style={{ 
+                    background: "rgba(255,255,255,0.05)", 
+                    padding: "10px", 
+                    borderRadius: "8px", 
+                    color: "white",
+                    width: "100%" 
+                  }}
+                />
+                <button className="btn-primary" onClick={handleSavePhoto} disabled={saving} style={{ width: "100%" }}>
+                  {saving ? "Uploading..." : "Save Profile Picture"}
+                </button>
+              </div>
+
+              <p style={{ margin: "0 0 10px 0", fontSize: "0.9rem", fontWeight: "600" }}>Or pick a preset:</p>
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
+                {[
+                  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                  "https://cdn-icons-png.flaticon.com/512/3135/3135768.png",
+                  "https://cdn-icons-png.flaticon.com/512/219/219983.png",
+                  "https://cdn-icons-png.flaticon.com/512/219/219969.png",
+                  "https://cdn-icons-png.flaticon.com/512/219/219988.png",
+                ].map((url, i) => (
+                  <img 
+                    key={i}
+                    src={url} 
+                    alt="preset" 
+                    style={{ width: "45px", height: "45px", cursor: "pointer", borderRadius: "50%", border: photoURL === url ? "2px solid #00c6ff" : "1px solid rgba(255,255,255,0.1)" }}
+                    onClick={() => { setPhotoURL(url); }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="bio-section">
+            {isEditingBio ? (
+              <div className="bio-edit">
+                <textarea 
+                  className="bio-textarea"
+                  value={bio} 
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={150}
+                  placeholder="Write a short bio..."
+                />
+                <button className="btn-primary save-bio-btn" onClick={handleSaveBio} disabled={saving}>
+                  {saving ? "Saving..." : "Save"}
+                </button>
+              </div>
+            ) : (
+              <div className="bio-display">
+                <p>"{bio}"</p>
+                <button className="btn-secondary edit-bio-btn" onClick={() => setIsEditingBio(true)}>
+                  ✎ Edit Bio
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <h3 className="movies-heading">Favorite Movies ({selectedMovies.length})</h3>
+      {selectedMovies.length === 0 ? (
+        <p className="no-movies">No movies selected yet. Go to Swipe Mode!</p>
+      ) : (
+        <div className="profile-movie-grid">
+          {selectedMovies.map((movie) => (
+            <div key={movie.id} className="profile-movie-card">
+              <img
+                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                alt={movie.title}
+                title={movie.title}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/Chat.jsx">
+import React, { useState, useEffect, useRef } from "react";
+import {
+  createOrGetChat,
+  listenToChatMessages,
+  sendMessage,
+  blockUser,
+  reportUser,
+  db
+} from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import "./GroupChat.css";
+import "./Chat.css";
+
+export default function Chat({ user, friend, onBack, onBlockSuccess }) {
+  const [chatId, setChatId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
+  const [showPlanner, setShowPlanner] = useState(false);
+  const [eventDate, setEventDate] = useState("");
+  const [isViewingProfile, setIsViewingProfile] = useState(false);
+  const [friendDetails, setFriendDetails] = useState(null);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const friendUid = friend?.uid || friend?.userId;
+    if (!user?.uid || !friendUid) return;
+
+    let unsubscribe = null;
+
+    async function setupChat() {
+      try {
+        const id = await createOrGetChat(user.uid, friendUid);
+        setChatId(id);
+
+        unsubscribe = listenToChatMessages(id, (msgs) => {
+          setMessages(msgs);
+        });
+      } catch (err) {
+        console.error("Error setting up chat:", err);
+      }
+    }
+
+    setupChat();
+
+    const fetchFriendDetails = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, "users", friendUid));
+        if (docSnap.exists()) {
+          setFriendDetails(docSnap.data());
+        }
+      } catch (err) {
+        console.error("Error fetching friend profile:", err);
+      }
+    };
+    fetchFriendDetails();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [user, friend]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  async function handleSend(e) {
+    e.preventDefault();
+    if (input.trim() === "" || !chatId) return;
+
+    try {
+      await sendMessage(chatId, user.uid, input.trim(), "text", null, user.photoURL);
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Message failed to send. Check your connection or Firestore permissions.");
+    }
+  }
+
+  const handleBlock = async () => {
+    const friendUid = friend?.uid || friend?.userId;
+    if (window.confirm(`Are you sure you want to block ${friend.displayName}? They will be removed from your matches.`)) {
+      try {
+        await blockUser(user.uid, friendUid);
+        alert("User blocked successfully.");
+        if (onBlockSuccess) onBlockSuccess();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to block user. Check Firestore permissions.");
+      }
+    }
+  };
+
+  const handleReport = async () => {
+    const friendUid = friend?.uid || friend?.userId;
+    const reason = window.prompt(`Why are you reporting ${friend.displayName}?`);
+    if (reason && reason.trim() !== "") {
+      try {
+        await reportUser(user.uid, friendUid, reason);
+        alert("Report submitted successfully. We will review it shortly.");
+        setShowMenu(false);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to submit report.");
+      }
+    }
+  };
+
+  const handleLeave = () => {
+    if (window.confirm("Are you sure you want to leave this chat?")) {
+      onBack();
+    }
+  };
+
+  const handleScheduleEvent = async () => {
+    if (!eventDate) return;
+    try {
+      await sendMessage(chatId, user.uid, "", "event", {
+        title: "Movie Night Screening",
+        dateTime: eventDate
+      }, user.photoURL);
+      setShowPlanner(false);
+      setEventDate("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const friendDisplayName = friend?.displayName || friendDetails?.displayName || "Friend";
+  const friendPhoto = friend?.photoURL || friendDetails?.photoURL;
+
+  return (
+    <div className="chat-container">
+      <div className="chat-header glass-panel">
+        <button className="nav-back-btn" onClick={onBack}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span>Back</span>
+        </button>
+
+        <div 
+          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", cursor: "pointer" }}
+          onClick={() => setIsViewingProfile(true)}
+          title="View Profile"
+        >
+          <img 
+            src={friendPhoto || `https://ui-avatars.com/api/?name=${friendDisplayName}&background=random`} 
+            alt="Avatar" 
+            style={{ width: "36px", height: "36px", borderRadius: "50%", border: "1.5px solid var(--accent-primary, #e50914)" }} 
+          />
+          <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>{friendDisplayName}</h2>
+        </div>
+        
+        <button 
+          className="btn-secondary" 
+          onClick={() => setShowMenu(!showMenu)}
+          style={{ padding: "8px 12px", fontSize: "1.1rem", borderRadius: "999px" }}
+        >
+          ⋮
+        </button>
+
+        {showMenu && (
+          <div className="chat-action-menu">
+            <button className="chat-action-btn" onClick={() => setIsViewingProfile(true)}>View Profile</button>
+            <button className="chat-action-btn" onClick={handleReport}>Report User</button>
+            <button className="chat-action-btn danger" onClick={handleBlock}>Block User</button>
+            <button className="chat-action-btn" onClick={handleLeave}>Leave Chat</button>
+          </div>
+        )}
+      </div>
+
+      {isViewingProfile && friendDetails && (
+        <div className="planner-modal glass-panel" style={{ bottom: "auto", top: "76px", maxHeight: "80vh", overflowY: "auto", zIndex: 1100 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700 }}>{friendDetails.displayName}'s Profile</h2>
+            <button className="btn-secondary" onClick={() => setIsViewingProfile(false)}>Close</button>
+          </div>
+          <div style={{ textAlign: "center", marginBottom: "20px" }}>
+            <img 
+              src={friendDetails.photoURL || `https://ui-avatars.com/api/?name=${friendDetails.displayName}&background=random`} 
+              alt="Avatar" 
+              style={{ width: "90px", height: "90px", borderRadius: "50%", border: "2px solid var(--accent-primary, #e50914)" }} 
+            />
+            <p style={{ fontStyle: "italic", marginTop: "10px", color: "var(--text-secondary, #a1a1aa)" }}>
+              "{friendDetails.bio || "Looking for movie buddies."}"
+            </p>
+          </div>
+          <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "10px", fontSize: "1rem" }}>Favorite Films</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "10px", marginTop: "14px" }}>
+            {friendDetails.selectedMovies?.map((movie) => (
+              <div key={movie.id} style={{ borderRadius: "10px", overflow: "hidden", aspectRatio: "2/3" }}>
+                <img src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} alt={movie.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="chat-messages glass-panel">
+        {messages.length === 0 && !chatId && (
+          <p style={{ textAlign: "center", color: "var(--text-secondary, #a1a1aa)", marginTop: "40px" }}>
+            Loading conversation...
+          </p>
+        )}
+        {messages.length === 0 && chatId && (
+          <p style={{ textAlign: "center", color: "var(--text-secondary, #a1a1aa)", marginTop: "40px" }}>
+            Start the conversation with {friendDisplayName}!
+          </p>
+        )}
+        {messages.map((msg) => {
+          const isSent = msg.senderId === user.uid;
+          const photoURL = isSent ? user.photoURL : friendPhoto;
+          
+          if (msg.type === "event") {
+             return (
+               <div key={msg.id} className="event-card-wrapper">
+                 <div className="event-card glass-panel">
+                   <h3>{msg.eventDetails.title}</h3>
+                   <p>Scheduled by {isSent ? "You" : friendDisplayName}</p>
+                   <div className="event-time">
+                     {new Date(msg.eventDetails.dateTime).toLocaleString()}
+                   </div>
+                 </div>
+               </div>
+             );
+          }
+
+          return (
+            <div
+              key={msg.id}
+              className={`message-wrapper ${isSent ? "sent" : "received"}`}
+            >
+              {!isSent && (
+                <img 
+                  src={photoURL || `https://ui-avatars.com/api/?name=${friendDisplayName}&background=random`} 
+                  className="chat-avatar" 
+                  alt="Avatar" 
+                />
+              )}
+              <div className="message-bubble">{msg.text}</div>
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {showPlanner && (
+        <div className="planner-modal glass-panel">
+          <h3 style={{ margin: "0 0 14px 0", fontSize: "1.05rem" }}>Schedule Movie Session</h3>
+          <input 
+            type="datetime-local" 
+            value={eventDate} 
+            onChange={(e) => setEventDate(e.target.value)} 
+            className="chat-input"
+            style={{ marginBottom: "14px", width: "100%" }}
+          />
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button className="btn-secondary" onClick={() => setShowPlanner(false)}>Cancel</button>
+            <button className="btn-primary" onClick={handleScheduleEvent}>Send Invite</button>
+          </div>
+        </div>
+      )}
+
+      <div className="chat-input-area">
+        <button 
+          type="button" 
+          className="btn-secondary plan-btn" 
+          onClick={() => setShowPlanner(!showPlanner)}
+          title="Schedule Movie Session"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </button>
+        <form onSubmit={handleSend} style={{ flex: 1, display: "flex", gap: "12px" }}>
+          <input
+            type="text"
+            className="chat-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Send message..."
+          />
+          <button type="submit" className="btn-primary chat-send-btn">
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/App.js">
+import React, { useEffect, useState, useRef } from "react";
+import axios from "axios";
+import {
+  auth, onAuthStateChanged, signInWithGoogle, logout,
+  saveSelectedMovies, findFriendMatches, listenToAllUserChats,
+} from "./firebase";
+import MovieSelector   from "./components/MovieSelector";
+import SelectedMovies  from "./components/SelectedMovies";
+import FriendMatches   from "./components/FriendMatches";
+import UserProfile     from "./components/UserProfile";
+import Chat            from "./components/Chat";
+import MovieLounges    from "./components/MovieLounges";
+import GroupChat       from "./components/GroupChat";
+import MovieSwiper     from "./components/MovieSwiper";     
+import CreateGroup     from "./components/CreateGroup";
+import UserGroups      from "./components/UserGroups";
+import Toast           from "./components/Toast";
+import Navbar          from "./components/Navbar";
+import Inbox           from "./components/Inbox";
+import "./App.css";
+
+const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
+
+export default function App() {
+  const [user,              setUser]              = useState(null);
+  const [page,              setPage]              = useState("home");
+  const [selectedMovies,    setSelectedMovies]    = useState(() => {
+    try { return JSON.parse(localStorage.getItem("selectedMovies")) || []; }
+    catch { return []; }
+  });
+  const [friendMatches,     setFriendMatches]     = useState([]);
+  const [trendingMovies,    setTrendingMovies]    = useState([]);
+  const [topRatedMovies,    setTopRatedMovies]    = useState([]);
+  const [activeChatFriend,  setActiveChatFriend]  = useState(null);
+  const [activeGroupLounge, setActiveGroupLounge] = useState(null);
+  const [activeCustomGroup, setActiveCustomGroup] = useState(null);
+  const [refreshTrigger,    setRefreshTrigger]    = useState(0);
+  const [notification,      setNotification]      = useState(null);
+  const prevChatsRef = useRef({});
+
+  /* ── Auth ── */
+  useEffect(() => {
+    return onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (!u) { setSelectedMovies([]); setFriendMatches([]); }
+    });
+  }, []);
+
+  /* ── Fetch Real Movies for Front Page ── */
+  useEffect(() => {
+    axios
+      .get(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&page=1`)
+      .then((res) => setTrendingMovies(res.data.results || []))
+      .catch(console.error);
+
+    axios
+      .get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${TMDB_API_KEY}&page=1`)
+      .then((res) => setTopRatedMovies(res.data.results || []))
+      .catch(console.error);
+  }, []);
+
+  /* ── Notification listener ── */
+  useEffect(() => {
+    if (!user) { prevChatsRef.current = {}; return; }
+    const unsub = listenToAllUserChats(user.uid, (chats) => {
+      chats.forEach((chat) => {
+        if (!chat.lastMessageTime || !chat.lastSenderId) return;
+        if (chat.lastSenderId === user.uid) {
+          prevChatsRef.current[chat.id] = chat.lastMessageTime.toMillis?.() || 0;
+          return;
+        }
+        const lastTime = chat.lastMessageTime.toMillis?.() || 0;
+        const prevTime = prevChatsRef.current[chat.id];
+        if (prevTime && lastTime > prevTime) {
+          const chatName = chat.name || (chat.isCustomGroup ? "Group" : "Direct Message");
+          setNotification(`${chatName}: ${chat.lastMessage}`);
+        }
+        prevChatsRef.current[chat.id] = lastTime;
+      });
+    });
+    return () => unsub();
+  }, [user]);
+
+  /* ── Save movies to localStorage and Firestore ── */
+  useEffect(() => {
+    localStorage.setItem("selectedMovies", JSON.stringify(selectedMovies));
+    if (user) saveSelectedMovies(selectedMovies).catch(console.error);
+  }, [selectedMovies, user]);
+
+  /* ── Fetch matches from Firestore ── */
+  useEffect(() => {
+    if (user && selectedMovies.length) {
+      findFriendMatches(user.uid, selectedMovies)
+        .then(setFriendMatches)
+        .catch(console.error);
+    } else {
+      setFriendMatches([]);
+    }
+  }, [user, selectedMovies, refreshTrigger]);
+
+  const handleLogin  = () => signInWithGoogle().catch((e) => alert("Sign-in failed: " + e.message));
+  const handleLogout = async () => {
+    await logout();
+    setPage("home"); setSelectedMovies([]); setFriendMatches([]);
+    setActiveChatFriend(null); setActiveGroupLounge(null); setActiveCustomGroup(null);
+  };
+
+  /* ── Dynamic Move to Library (Instantly removes from recommendation rails) ── */
+  const handleAddMovie = (movie) => {
+    const alreadySelected = selectedMovies.some((m) => String(m.id) === String(movie.id));
+    if (!alreadySelected) {
+      setSelectedMovies((prev) => [movie, ...prev]);
+      setNotification(`Added "${movie.title}" to your library.`);
+    }
+  };
+
+  /* Normalizes both friend.uid and friend.userId to prevent undefined chat document paths */
+  const openPrivateChat = (friend) => {
+    setActiveChatFriend({
+      uid: friend.uid || friend.userId,
+      displayName: friend.displayName || "Friend",
+      photoURL: friend.photoURL || "",
+    });
+    setPage("chat");
+  };
+
+  const openGroupLounge = (movie)  => { setActiveGroupLounge(movie); setPage("groupChatLounge"); };
+  const openCustomGroup = (group)  => { setActiveCustomGroup(group); setPage("groupChatCustom"); };
+
+  const navigate = (target) => {
+    if (target !== "chat") setActiveChatFriend(null);
+    if (target !== "groupChatLounge") setActiveGroupLounge(null);
+    if (target !== "groupChatCustom") setActiveCustomGroup(null);
+    setPage(target);
+  };
+
+  const heroMovie = selectedMovies[0] || trendingMovies[0] || {
+    title: "Interstellar",
+    backdrop_path: "/xJHokMbljvjADYdit5fK5VQsXEG.jpg",
+    overview: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+  };
+
+  /* Exclude movies already in library so they immediately vacate recommendation rails */
+  const visibleTrending = trendingMovies.filter(
+    (movie) => !selectedMovies.some((m) => String(m.id) === String(movie.id))
+  );
+
+  const visibleTopRated = topRatedMovies.filter(
+    (movie) => !selectedMovies.some((m) => String(m.id) === String(movie.id))
+  );
+
+  return (
+    <div className="app-container">
+      {/* ── App Header ── */}
+      <header className="app-header">
+        <div className="brand-group" onClick={() => navigate("home")}>
+          <span className="brand-pillar"></span>
+          <h1 className="logo">FRIENDFLIX</h1>
+        </div>
+
+        {user ? (
+          <div className="header-right">
+            <button className="icon-btn-header" onClick={() => navigate("inbox")} title="Direct Messages">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+            </button>
+            <img
+              src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=random`}
+              alt="Avatar"
+              className="header-avatar"
+              onClick={() => navigate("profile")}
+              title="Your Profile"
+            />
+          </div>
+        ) : (
+          <button className="signin-button" onClick={handleLogin}>Sign In</button>
+        )}
+      </header>
+
+      <Toast message={notification} onClose={() => setNotification(null)} />
+
+      {/* ── Landing Page ── */}
+      {!user && (
+        <div className="landing">
+          <div className="landing-badge">CINEMATIC SOCIAL NETWORK</div>
+          <h2 className="landing-title">
+            Watch together. <br /><span className="accent">Match through cinema.</span>
+          </h2>
+          <p className="landing-subtitle">
+            Match with people who share your film DNA, jump into real-time fan lounges, and coordinate screenings seamlessly.
+          </p>
+          <button className="landing-cta" onClick={handleLogin}>
+            Sign In with Google
+          </button>
+        </div>
+      )}
+
+      {/* ── Post-Login Dashboard ── */}
+      {user && page === "home" && (
+        <div className="home-dashboard">
+          
+          {/* Top Matches Tray */}
+          <div className="stories-section">
+            <div className="section-header">
+              <h3>Taste Matches</h3>
+              <span className="section-link" onClick={() => navigate("friendMatches")}>
+                View All ({friendMatches.length})
+              </span>
+            </div>
+
+            <div className="stories-scroll">
+              {friendMatches.length === 0 ? (
+                <div className="empty-story-pill" onClick={() => navigate("select")}>
+                  <div className="add-plus">+</div>
+                  <span>Pick 3 films to unlock your matches</span>
+                </div>
+              ) : (
+                friendMatches.map((friend) => (
+                  <div 
+                    key={friend.userId || friend.uid} 
+                    className="story-item"
+                    onClick={() => openPrivateChat(friend)}
+                  >
+                    <div className="avatar-ring">
+                      <img 
+                        src={friend.photoURL || `https://ui-avatars.com/api/?name=${friend.displayName}&background=random`} 
+                        alt={friend.displayName} 
+                      />
+                      <span className="match-tag">{friend.matchPercentage}%</span>
+                    </div>
+                    <span className="story-label">{friend.displayName?.split(" ")[0]}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Large Hero Cinema Billboard */}
+          <div className="cinema-hero">
+            <div 
+              className="hero-backdrop" 
+              style={{
+                backgroundImage: `url(https://image.tmdb.org/t/p/w1280${heroMovie.backdrop_path || heroMovie.poster_path})`
+              }}
+            >
+              <div className="hero-gradient-overlay" />
+            </div>
+
+            <div className="hero-details">
+              <span className="hero-eyebrow">HEADLINE FILM</span>
+              <h2 className="hero-title">{heroMovie.title}</h2>
+              <p className="hero-desc">{heroMovie.overview}</p>
+              
+              <div className="hero-btn-row">
+                <button className="btn-primary" onClick={() => navigate("swiper")}>
+                  Start Swiping
+                </button>
+                <button className="btn-secondary" onClick={() => openGroupLounge(heroMovie)}>
+                  Enter Lounge
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Rail 1: User's Library */}
+          <div className="rail-section">
+            <div className="section-header">
+              <h3>Your Library ({selectedMovies.length})</h3>
+              <span className="section-link" onClick={() => navigate("select")}>
+                + Search Titles
+              </span>
+            </div>
+
+            {selectedMovies.length === 0 ? (
+              <div className="empty-rail-placeholder" onClick={() => navigate("select")}>
+                <p>Tap + Add on any movie below or search to build your library.</p>
+              </div>
+            ) : (
+              <div className="poster-scroll-rail">
+                {selectedMovies.map((movie) => (
+                  <div 
+                    key={movie.id} 
+                    className="rail-poster-card" 
+                    onClick={() => openGroupLounge(movie)}
+                  >
+                    <img 
+                      src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`} 
+                      alt={movie.title} 
+                    />
+                    <div className="poster-meta">
+                      <span className="live-indicator">LOUNGE</span>
+                      <h5>{movie.title}</h5>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Rail 2: Trending (Disappears dynamically once added) */}
+          {visibleTrending.length > 0 && (
+            <div className="rail-section">
+              <div className="section-header">
+                <h3>Trending Movies</h3>
+                <span className="section-link" onClick={() => navigate("swiper")}>
+                  Swipe All
+                </span>
+              </div>
+
+              <div className="poster-scroll-rail">
+                {visibleTrending.slice(0, 12).map((movie) => (
+                  <div 
+                    key={movie.id} 
+                    className="rail-poster-card" 
+                    onClick={() => handleAddMovie(movie)}
+                  >
+                    <img 
+                      src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`} 
+                      alt={movie.title} 
+                    />
+                    <div className="poster-meta">
+                      <span className="add-badge">+ Add</span>
+                      <h5>{movie.title}</h5>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rail 3: Top Rated (Disappears dynamically once added) */}
+          {visibleTopRated.length > 0 && (
+            <div className="rail-section">
+              <div className="section-header">
+                <h3>Top Rated Films</h3>
+                <span className="section-link" onClick={() => navigate("select")}>
+                  Search All
+                </span>
+              </div>
+
+              <div className="poster-scroll-rail">
+                {visibleTopRated.slice(0, 12).map((movie) => (
+                  <div 
+                    key={movie.id} 
+                    className="rail-poster-card" 
+                    onClick={() => handleAddMovie(movie)}
+                  >
+                    <img 
+                      src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`} 
+                      alt={movie.title} 
+                    />
+                    <div className="poster-meta">
+                      <span className="score-badge">{Math.round(movie.vote_average * 10)}%</span>
+                      <h5>{movie.title}</h5>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Community Hub Links */}
+          <div className="action-cards-grid">
+            <div className="action-tile" onClick={() => navigate("lounges")}>
+              <span className="tile-category">COMMUNITY</span>
+              <h4>Movie Lounges</h4>
+              <p>Discuss the films in your library with other active viewers.</p>
+            </div>
+            <div className="action-tile" onClick={() => navigate("userGroups")}>
+              <span className="tile-category">CIRCLES</span>
+              <h4>Friend Groups</h4>
+              <p>Form private watch circles and plan upcoming sessions.</p>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {page === "select" && (
+        <MovieSelector
+          onSelectionComplete={(movies) => { setSelectedMovies(movies); navigate("home"); }}
+          initialSelected={selectedMovies}
+          onBack={() => navigate("home")}
+        />
+      )}
+
+      {page === "friendMatches" && (
+        <FriendMatches
+          matches={friendMatches}
+          onBack={() => navigate("home")}
+          onStartChat={(friend) => openPrivateChat(friend)}
+        />
+      )}
+
+      {page === "profile" && user && (
+        <UserProfile user={user} selectedMovies={selectedMovies} onBack={() => navigate("home")} />
+      )}
+
+      {page === "inbox" && user && (
+        <Inbox
+          user={user}
+          matches={friendMatches}
+          onOpenPrivateChat={(friend) => openPrivateChat(friend)}
+          onOpenGroupChat={(group) => openCustomGroup(group)}
+        />
+      )}
+
+      {page === "chat" && user && activeChatFriend && (
+        <Chat
+          user={user}
+          friend={activeChatFriend}
+          onBack={() => navigate("inbox")}
+          onBlockSuccess={() => {
+            setRefreshTrigger((p) => p + 1);
+            setActiveChatFriend(null);
+            navigate("friendMatches");
+          }}
+        />
+      )}
+
+      {page === "lounges" && (
+        <MovieLounges
+          selectedMovies={selectedMovies}
+          onBack={() => navigate("home")}
+          onJoinLounge={(movie) => openGroupLounge(movie)}
+        />
+      )}
+
+      {page === "groupChatLounge" && user && activeGroupLounge && (
+        <GroupChat
+          user={user}
+          chatId={"group_" + activeGroupLounge.id}
+          chatName={activeGroupLounge.title + " Lounge"}
+          onBack={() => navigate("lounges")}
+        />
+      )}
+
+      {page === "groupChatCustom" && user && activeCustomGroup && (
+        <GroupChat
+          user={user}
+          chatId={activeCustomGroup.id}
+          chatName={activeCustomGroup.name}
+          onBack={() => navigate("userGroups")}
+        />
+      )}
+
+      {page === "userGroups" && user && (
+        <UserGroups
+          user={user}
+          onBack={() => navigate("home")}
+          onCreateNew={() => navigate("createGroup")}
+          onJoinGroup={(group) => openCustomGroup(group)}
+        />
+      )}
+
+      {page === "createGroup" && user && (
+        <CreateGroup
+          user={user}
+          matches={friendMatches}
+          onBack={() => navigate("userGroups")}
+          onSuccess={(id, name) => { openCustomGroup({ id, name }); }}
+        />
+      )}
+
+      {page === "swiper" && (
+        <MovieSwiper onAddMovie={handleAddMovie} onBack={() => navigate("home")} />
+      )}
+
+      {page === "selected" && (
+        <SelectedMovies movies={selectedMovies} onBack={() => navigate("home")} />
+      )}
+
+      {user && <Navbar page={page} onNavigate={navigate} />}
+    </div>
+  );
+}
+</file>
+
+<file path="README.md">
+# FriendFlix 🎬🍿
+
+FriendFlix is a modern, social movie-discovery platform designed to bring movie lovers together. Built with a sleek, premium glassmorphic UI, FriendFlix allows users to find new movies, match with friends who share similar tastes, and chat in real-time.
+
+## ✨ Features
+
+- **Movie Discovery & Swiping:** Browse through movies powered by the **TMDB API**, select your favorites, and build your personalized watchlist.
+- **Friend Matching:** Discover and connect with other users based on your shared movie preferences.
+- **Real-time Chat:** Seamless direct messaging with friends and interactive group chats.
+- **Custom User Profiles:** Manage your profile, update your avatar, and showcase your top movie picks.
+- **Movie Lounges & Groups:** Create dedicated groups to discuss your favorite genres or plan watch parties.
+- **Premium UI/UX:** A state-of-the-art dark theme featuring glassmorphism, dynamic micro-animations, and a highly responsive design.
+
+## 🔗 Live Demo
+
+Check out the live application here: **[https://friendflix-nu.vercel.app/](https://friendflix-nu.vercel.app/)**
+
+## 🛠️ Technology Stack
+
+- **Frontend:** React 18
+- **Backend API:** Node.js & Express (Hosted on Railway)
+- **Primary Database:** MongoDB (MERN Stack)
+- **Real-time Social Features:** Firebase (Firestore, Authentication, Storage)
+- **Movie Data API:** [TMDB (The Movie Database)](https://www.themoviedb.org/)
+- **API Client:** Axios
+- **Animations:** Framer Motion
+- **Styling:** Custom Vanilla CSS (Glassmorphism & Dark Mode)
+- **Build Tool:** Create React App (with CRACO)
+
+## 🚀 Getting Started
+
+Follow these steps to set up the project locally:
+
+### Prerequisites
+Make sure you have Node.js and npm installed on your machine.
+
+### Installation
+
+1. **Clone the repository** (if you haven't already):
+   ```bash
+   git clone <repository-url>
+   cd friendflix-client
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup:**
+   Ensure your Firebase credentials are set up. Create a `.env` file in the root directory and add your Firebase configuration variables (e.g., `REACT_APP_FIREBASE_API_KEY`, etc.).
+
+4. **Start the development server:**
+   ```bash
+   npm start
+   ```
+   The app will automatically open in your browser at [http://localhost:3000](http://localhost:3000).
+
+## 📂 Project Structure
+
+- `src/components/`: Contains all the reusable React components (Navbar, Chat, MovieSwiper, Toast, etc.) along with their dedicated CSS files.
+- `src/pages/`: Main application views (Home, Login, Register, MatchedFriends).
+- `src/firebase.js`: Firebase initialization and configuration.
+
+## 📜 Available Scripts
+
+In the project directory, you can run:
+- `npm start`: Runs the app in development mode.
+- `npm test`: Launches the test runner.
+- `npm run build`: Builds the app for production to the `build` folder.
+
+---
+*Designed and built for an immersive movie-sharing experience.*
+</file>
+
+</files>

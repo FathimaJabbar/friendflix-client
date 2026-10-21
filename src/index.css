@@ -1,30 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
 
 :root {
-  --panel-bg: rgba(18, 18, 28, 0.65);
+  --bg-obsidian: #060608;
+  --bg-elevated: #0f0f14;
+  --panel-bg: rgba(18, 18, 24, 0.78);
   --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-top: rgba(255, 255, 255, 0.2);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(160, 160, 185, 0.9);
-  --text-muted: rgba(110, 110, 135, 0.8);
-  --accent-gradient: linear-gradient(135deg, #00c6ff, #0072ff);
-  --accent-start: #00c6ff;
-  --accent-end: #0072ff;
-  --success-color: #00e676;
-  --danger-color: #ff5252;
-  --font-family: 'Outfit', sans-serif;
-  --nav-height: 70px;
+  --panel-border-top: rgba(255, 255, 255, 0.16);
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #636366;
+  
+  /* Netflix Crimson + Cinema Glow */
+  --accent-primary: #e50914;
+  --accent-secondary: #ff2a5f;
+  --accent-gradient: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+  --glow-red: rgba(229, 9, 20, 0.28);
+  
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  
+  --nav-height: 64px;
   --header-height: 60px;
-  --radius: 16px;
-  --radius-lg: 22px;
-  --radius-xl: 28px;
-  --glow-blue: rgba(0, 198, 255, 0.22);
-  --grad-fire: linear-gradient(135deg, #ff416c, #ff4b2b);
-  --grad-ocean: linear-gradient(135deg, #00c6ff, #0072ff);
-  --grad-gold: linear-gradient(135deg, #f7971e, #ffd200);
-  --grad-aurora: linear-gradient(135deg, #a18cd1, #fbc2eb);
-  --grad-emerald: linear-gradient(135deg, #00e676, #00b0ff);
-  /* Safe area insets for notched phones */
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -33,10 +35,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
-  /* Prevent iOS rubber-band overscroll on body */
-  height: -webkit-fill-available;
-}
+html { height: -webkit-fill-available; }
 
 body {
   font-family: var(--font-family);
@@ -45,143 +44,243 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background: #09090f;
+  background-color: var(--bg-obsidian);
   background-image:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 72, 255, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(0, 198, 255, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(48, 43, 99, 0.25) 0%, transparent 70%);
+    radial-gradient(circle at 50% -20%, rgba(229, 9, 20, 0.14), transparent 55%),
+    radial-gradient(circle at 85% 90%, rgba(255, 255, 255, 0.03), transparent 45%);
   background-attachment: fixed;
-  /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
 }
 
-/* ── Animations ── */
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0);    }
-}
-@keyframes popIn {
-  from { transform: scale(0.88); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0);   }
-}
-@keyframes slideInRight {
-  from { transform: translateX(110%); opacity: 0; }
-  to   { transform: translateX(0);   opacity: 1; }
-}
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .page-wrapper {
-  animation: pageIn 0.38s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 24px);
+  animation: pageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 28px);
 }
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 10px; }
 
-/* ── Glass Panel ── */
+/* ── Spatial Glass Surfaces ── */
 .glass-panel {
   background: var(--panel-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
   border: 1px solid var(--panel-border);
   border-top-color: var(--panel-border-top);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
-}
-.glass-card {
-  background: rgba(255,255,255,0.035);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: var(--radius);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-.glass-card:hover {
-  background: rgba(255,255,255,0.065);
-  border-color: rgba(255,255,255,0.12);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* ── Buttons ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+}
+
 button {
   font-family: var(--font-family);
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 10px;
   border: none;
   font-weight: 600;
-  letter-spacing: 0.2px;
-  /* Prevent double-tap zoom on iOS */
   touch-action: manipulation;
 }
+
 .btn-primary {
   background: var(--accent-gradient);
-  color: white;
-  padding: 12px 24px;
-  box-shadow: 0 4px 16px var(--glow-blue);
+  color: #ffffff;
+  padding: 11px 22px;
+  box-shadow: 0 6px 20px var(--glow-red), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .btn-primary:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 28px rgba(0,198,255,0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(229, 9, 20, 0.45);
+  filter: brightness(1.08);
 }
 .btn-primary:active { transform: scale(0.97); }
 
 .btn-secondary {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 12px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 11px 20px;
 }
 .btn-secondary:hover {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.18);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.btn-icon {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-primary);
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0; font-size: 1.1rem;
-}
-.btn-icon:hover { background: rgba(255,255,255,0.13); }
-
-/* ── Utility ── */
-.gradient-text {
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 .empty-state {
-  padding: 60px 20px;
+  padding: 64px 24px;
   text-align: center;
   color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  margin-top: 16px;
 }
-.empty-state .empty-icon { font-size: 2.8rem; margin-bottom: 16px; opacity: 0.45; }
-.empty-state h3 { margin: 0 0 8px; font-size: 1.15rem; color: var(--text-primary); }
-.empty-state p  { margin: 0; font-size: 0.9rem; }
+.empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 12px; opacity: 0.6; }
+.empty-state h3 { margin: 0 0 6px; font-size: 1.1rem; color: var(--text-primary); font-weight: 600; }
+.empty-state p  { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+/* ==========================================================================
+   GLOBAL RESPONSIVE FIXES (Mobile, Tablet, Dynamic Viewports)
+   ========================================================================== */
 
-/* ── Responsive typography ── */
-@media (max-width: 480px) {
+/* 1. Prevent body and viewport overflow jitter */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+/* 2. Responsive adjustments for mobile devices (under 640px) */
+@media (max-width: 640px) {
   :root {
+    --nav-height: 58px;
     --header-height: 56px;
-    --nav-height: 64px;
+  }
+
+  .app-container {
+    padding: 0 14px;
+  }
+
+  /* Header adjustments */
+  .app-header {
+    height: 56px;
+    margin: 0 -14px 14px;
+    padding: 0 16px;
+  }
+
+  .logo {
+    font-size: 1.15rem;
+  }
+
+  /* Billboard & Hero Banner scaling */
+  .cinema-hero {
+    min-height: 240px;
+    padding: 20px 16px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem !important;
+  }
+
+  .hero-desc {
+    font-size: 0.85rem !important;
+    -webkit-line-clamp: 2;
+  }
+
+  .hero-btn-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .hero-btn-row button {
+    width: 100%;
+  }
+
+  /* Horizontal rails touch scroll */
+  .stories-scroll,
+  .poster-scroll-rail {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-left: 2px;
+    padding-right: 14px;
+  }
+
+  .rail-poster-card {
+    flex: 0 0 120px !important;
+    scroll-snap-align: start;
+  }
+
+  .story-item {
+    scroll-snap-align: start;
+  }
+
+  /* Discovery Swiper adjustments */
+  .swiper-container {
+    padding-top: 4px;
+  }
+
+  .card-stack {
+    height: clamp(300px, 46vh, 380px) !important;
+  }
+
+  .swipe-card {
+    width: min(290px, 90vw) !important;
+  }
+
+  /* Bottom bar placement: Avoid overlapping the floating dock */
+  .selector-bottom-bar {
+    width: calc(100% - 24px) !important;
+    padding: 10px 16px !important;
+    bottom: calc(var(--nav-height) + var(--safe-bottom) + 10px) !important;
+  }
+
+  .selection-count {
+    font-size: 0.82rem !important;
+  }
+
+  /* Floating Bottom Dock on Small Screens */
+  .bottom-nav {
+    width: calc(100% - 16px) !important;
+    bottom: calc(8px + var(--safe-bottom)) !important;
+  }
+
+  .bottom-nav-inner {
+    height: 56px !important;
+    padding: 0 4px !important;
+  }
+
+  .nav-item {
+    padding: 4px 6px !important;
+  }
+
+  .nav-label {
+    font-size: 0.58rem !important;
+  }
+
+  .nav-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Chat viewport adjustments */
+  .chat-container,
+  .group-chat-container {
+    height: calc(100dvh - var(--header-height) - 10px);
+  }
+
+  .message-bubble-wrapper {
+    max-width: 82% !important;
+  }
+}
+
+/* 3. Extremely small screens (under 360px) */
+@media (max-width: 360px) {
+  .nav-label {
+    display: none; /* Hide text labels so 6 icons fit cleanly */
+  }
+
+  .bottom-nav-inner {
+    height: 50px !important;
   }
 }

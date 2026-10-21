@@ -8,11 +8,9 @@ const CreateGroup = ({ user, matches, onBack, onSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   const toggleFriend = (id) => {
-    if (selectedFriends.includes(id)) {
-      setSelectedFriends(selectedFriends.filter((f) => f !== id));
-    } else {
-      setSelectedFriends([...selectedFriends, id]);
-    }
+    setSelectedFriends((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
   };
 
   const handleCreate = async () => {
@@ -32,7 +30,7 @@ const CreateGroup = ({ user, matches, onBack, onSuccess }) => {
       onSuccess(groupId, groupName);
     } catch (err) {
       console.error(err);
-      alert("Error creating group. Check your Firebase permissions.");
+      alert("Error creating group. Please check your connection.");
     } finally {
       setLoading(false);
     }
@@ -40,26 +38,26 @@ const CreateGroup = ({ user, matches, onBack, onSuccess }) => {
 
   return (
     <div className="create-group-container glass-panel page-wrapper">
-      <h2>👥 Create Friend Group</h2>
-      <p style={{ color: "var(--text-secondary)", marginBottom: "30px" }}>
-        Invite your matches to a custom group chat!
+      <h2>Create Friend Group</h2>
+      <p style={{ color: "var(--text-secondary)", marginBottom: "30px", fontSize: "0.9rem" }}>
+        Form a private watch circle with your matches.
       </p>
 
       <div className="input-wrapper">
         <input
           type="text"
           className="group-name-input"
-          placeholder="Group Name (e.g. Friday Movie Night)"
+          placeholder="Group Name (e.g., Weekend Screening)"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
         />
       </div>
 
       <div className="friends-selection-list">
-        <h3>Select Friends to Invite:</h3>
+        <h3>Select Members</h3>
         {matches.length === 0 ? (
-          <p style={{ padding: "20px", color: "var(--text-secondary)" }}>
-            No matches to invite yet. Go find some friends first!
+          <p style={{ padding: "20px", color: "var(--text-secondary)", fontSize: "0.88rem" }}>
+            No matches found yet. Add more films to discover friends.
           </p>
         ) : (
           <div className="friends-grid">
@@ -71,7 +69,7 @@ const CreateGroup = ({ user, matches, onBack, onSuccess }) => {
               >
                 <div className="friend-info">
                   <span className="name">{friend.displayName}</span>
-                  <span className="badge">{friend.badge?.emoji} {friend.badge?.name}</span>
+                  <span className="badge">{friend.badge?.name}</span>
                 </div>
                 <div className="checkbox">
                   {selectedFriends.includes(friend.userId) ? "✓" : "+"}
@@ -88,9 +86,9 @@ const CreateGroup = ({ user, matches, onBack, onSuccess }) => {
           className="btn-primary" 
           onClick={handleCreate}
           disabled={loading}
-          style={{ padding: "12px 40px" }}
+          style={{ padding: "12px 36px" }}
         >
-          {loading ? "Creating..." : "Create Group"}
+          {loading ? "Creating..." : "Confirm Group"}
         </button>
       </div>
     </div>

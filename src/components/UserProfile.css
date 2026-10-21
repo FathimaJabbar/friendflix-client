@@ -1,87 +1,91 @@
 .profile-container {
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: clamp(20px, 5vw, 40px);
+  /* 150px bottom padding ensures the last row of posters clears the 64px floating dock */
+  padding: 20px 20px 150px !important;
   text-align: left;
-  animation: fadeIn 0.8s ease forwards;
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 24px);
+  box-sizing: border-box;
 }
 
 .profile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 14px;
 }
 
 .profile-header h2 {
+  font-family: var(--font-display, inherit);
   margin: 0;
-  font-size: clamp(1.4rem, 5vw, 2rem);
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+  font-weight: 800;
+  color: #ffffff;
 }
 
 .profile-top {
   display: flex;
-  gap: clamp(16px, 4vw, 30px);
+  gap: 22px;
   align-items: center;
   margin-bottom: 32px;
   background: rgba(255, 255, 255, 0.03);
-  padding: clamp(18px, 4vw, 30px);
+  padding: 24px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  flex-wrap: wrap; /* allows wrap on very small screens */
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  flex-wrap: wrap;
 }
 
 .profile-avatar {
-  width: clamp(80px, 20vw, 120px);
-  height: clamp(80px, 20vw, 120px);
+  width: 94px;
+  height: 94px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid rgba(0, 198, 255, 0.5);
-  box-shadow: 0 0 20px rgba(0, 198, 255, 0.3);
+  border: 2px solid var(--accent-primary, #e50914);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.3);
   flex-shrink: 0;
 }
 
 .profile-info {
   flex: 1;
-  min-width: 0; /* prevents overflow */
+  min-width: 0;
 }
 
 .profile-info h3 {
-  margin: 0 0 10px;
-  font-size: clamp(1.2rem, 5vw, 1.8rem);
-  word-break: break-word;
+  font-family: var(--font-display, inherit);
+  margin: 0 0 6px;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #ffffff;
 }
-
-.bio-section { min-height: 56px; }
 
 .bio-display {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .bio-display p {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: clamp(0.9rem, 3vw, 1.1rem);
+  color: var(--text-secondary, #a1a1aa);
+  font-size: 0.92rem;
   font-style: italic;
-  line-height: 1.5;
   flex: 1;
-  min-width: 0;
 }
 
 .edit-bio-btn {
-  padding: 8px 14px;
+  padding: 7px 16px;
   font-size: 0.82rem;
-  white-space: nowrap;
-  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.edit-bio-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .bio-edit {
@@ -93,46 +97,53 @@
 
 .bio-textarea {
   width: 100%;
-  height: 80px;
-  padding: 12px 14px;
+  height: 72px;
+  padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(0, 198, 255, 0.3);
-  color: var(--text-primary);
-  font-family: var(--font-family);
-  font-size: max(16px, 0.95rem); /* prevent iOS zoom */
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.92rem;
   resize: none;
+  box-sizing: border-box;
 }
 
 .bio-textarea:focus {
   outline: none;
-  border-color: rgba(0, 198, 255, 0.8);
+  border-color: var(--accent-primary, #e50914);
 }
-
-.save-bio-btn { padding: 8px 20px; font-size: 0.9rem; }
 
 .movies-heading {
+  font-family: var(--font-display, inherit);
   margin-bottom: 16px;
-  font-size: clamp(1rem, 4vw, 1.3rem);
-  color: var(--text-secondary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
+/* ── Clean 4-Column Poster Grid ── */
 .profile-movie-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(80px, 22vw, 120px), 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  /* Extra bottom margin to ensure zero overlap with any parent container */
+  margin-bottom: 40px;
 }
 
 .profile-movie-card {
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   aspect-ratio: 2/3;
+  background: #14141c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.25s ease, border-color 0.25s ease;
 }
 
-.profile-movie-card:hover  { transform: translateY(-5px); }
-.profile-movie-card:active { transform: scale(0.97); }
+.profile-movie-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.25);
+}
 
 .profile-movie-card img {
   width: 100%;
@@ -141,9 +152,12 @@
   display: block;
 }
 
-/* Stack avatar + info on very small phones */
-@media (max-width: 380px) {
-  .profile-top { flex-direction: column; align-items: center; text-align: center; }
-  .bio-display  { flex-direction: column; align-items: center; }
-  .edit-bio-btn { width: 100%; }
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 16px 14px 160px !important;
+  }
+  .profile-movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
 }

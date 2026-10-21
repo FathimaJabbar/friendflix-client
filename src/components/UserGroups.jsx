@@ -18,20 +18,20 @@ const UserGroups = ({ user, onJoinGroup, onBack, onCreateNew }) => {
   return (
     <div className="user-groups-container glass-panel page-wrapper">
       <div className="groups-header">
-        <h2>Your Friend Groups 👥</h2>
-        <button className="btn-primary" onClick={onCreateNew} style={{ padding: "10px 20px", borderRadius: "30px" }}>
+        <h2>Your Friend Groups</h2>
+        <button className="btn-primary" onClick={onCreateNew} style={{ padding: "10px 22px", borderRadius: "999px" }}>
           + New Group
         </button>
       </div>
 
       {loading ? (
-        <p style={{ padding: "40px", color: "var(--text-secondary)" }}>Loading your groups...</p>
+        <p style={{ padding: "40px", color: "var(--text-secondary)" }}>Loading your circles...</p>
       ) : groups.length === 0 ? (
         <div className="no-groups">
-          <p style={{ fontSize: "1.2rem", color: "var(--text-secondary)", marginBottom: "20px" }}>
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginBottom: "20px" }}>
             You aren't in any friend groups yet.
           </p>
-          <button className="btn-secondary" onClick={onCreateNew}>Create your first group!</button>
+          <button className="btn-secondary" onClick={onCreateNew}>Create your first group</button>
         </div>
       ) : (
         <div className="groups-list">
@@ -51,7 +51,7 @@ const UserGroups = ({ user, onJoinGroup, onBack, onCreateNew }) => {
       )}
 
       <button className="btn-secondary back-btn" onClick={onBack} style={{ marginTop: "40px", width: "100%", maxWidth: "300px" }}>
-        Back to Menu
+        Return to Home
       </button>
     </div>
   );
