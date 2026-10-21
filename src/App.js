@@ -99,6 +99,7 @@ export default function App() {
   }, [user, selectedMovies, refreshTrigger]);
 
   const handleLogin  = () => signInWithGoogle().catch((e) => alert("Sign-in failed: " + e.message));
+  // eslint-disable-next-line no-unused-vars
   const handleLogout = async () => {
     await logout();
     setPage("home"); setSelectedMovies([]); setFriendMatches([]);
@@ -172,6 +173,9 @@ export default function App() {
               onClick={() => navigate("profile")}
               title="Your Profile"
             />
+            <button className="signout-btn" onClick={handleLogout} title="Sign Out">
+              Sign Out
+            </button>
           </div>
         ) : (
           <button className="signin-button" onClick={handleLogin}>Sign In</button>
