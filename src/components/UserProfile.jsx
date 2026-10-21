@@ -110,12 +110,12 @@ export default function UserProfile({ user, selectedMovies = [], onBack }) {
               <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", fontWeight: "600" }}>Presets</p>
               <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                 {[
-                  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-                  "https://cdn-icons-png.flaticon.com/512/3135/3135768.png",
-                  "https://cdn-icons-png.flaticon.com/512/219/219983.png",
-                  "https://cdn-icons-png.flaticon.com/512/219/219969.png",
-                  "https://cdn-icons-png.flaticon.com/512/219/219988.png",
-                ].map((url, i) => (
+  "https://ui-avatars.com/api/?name=Cinema+Fan&background=e50914&color=fff",
+  "https://ui-avatars.com/api/?name=Movie+Buff&background=1f1f2e&color=fff",
+  "https://ui-avatars.com/api/?name=Film+Critic&background=00e676&color=000",
+  "https://ui-avatars.com/api/?name=Action+Hero&background=ff9800&color=fff",
+  "https://ui-avatars.com/api/?name=SciFi+Nerd&background=7c4dff&color=fff",
+].map((url, i) => (
                   <img 
                     key={i}
                     src={url} 

@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import "./MovieSwiper.css";
 
-const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
+const TMDB_API_KEY = process.env.REACT_APP_TMDB_API_KEY || "96d6e812cf355a07e7026acbd3cd93cb";
 
 const FALLBACK_MOVIES = [
   { id: 693134, title: "Dune: Part Two", release_date: "2024", vote_average: 8.3, poster_path: "/xOMo8BRK7PfcJv9JCnx7s520DRq.jpg" },

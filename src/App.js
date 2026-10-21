@@ -19,7 +19,7 @@ import Navbar          from "./components/Navbar";
 import Inbox           from "./components/Inbox";
 import "./App.css";
 
-const TMDB_API_KEY = "96d6e812cf355a07e7026acbd3cd93cb";
+const TMDB_API_KEY = process.env.REACT_APP_TMDB_API_KEY || "96d6e812cf355a07e7026acbd3cd93cb";
 
 export default function App() {
   const [user,              setUser]              = useState(null);
