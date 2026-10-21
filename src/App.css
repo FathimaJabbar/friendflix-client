@@ -91,7 +91,33 @@
   font-size: 0.92rem;
   font-weight: 600;
 }
+/* ── Sleek Minimalist Logout Icon Button ── */
+.logout-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+.logout-icon-btn:hover {
+  background: rgba(229, 9, 20, 0.12);
+  border-color: rgba(229, 9, 20, 0.35);
+  color: var(--accent-primary, #e50914);
+  transform: scale(1.05);
+}
+
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
 /* ── Landing Page ── */
 .landing {
   display: flex;

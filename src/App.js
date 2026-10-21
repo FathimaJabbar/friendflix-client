@@ -153,6 +153,7 @@ export default function App() {
   return (
     <div className="app-container">
       {/* ── App Header ── */}
+     {/* ── App Header ── */}
       <header className="app-header">
         <div className="brand-group" onClick={() => navigate("home")}>
           <span className="brand-pillar"></span>
@@ -166,15 +167,20 @@ export default function App() {
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
               </svg>
             </button>
-            <img
-              src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=random`}
-              alt="Avatar"
-              className="header-avatar"
-              onClick={() => navigate("profile")}
-              title="Your Profile"
-            />
-            <button className="signout-btn" onClick={handleLogout} title="Sign Out">
-              Sign Out
+            <div className="avatar-wrapper" onClick={() => navigate("profile")} title="Your Profile">
+              <img
+                src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=random`}
+                alt="Avatar"
+                className="header-avatar"
+              />
+            </div>
+            {/* Sleek icon-only exit button */}
+            <button className="icon-btn-header logout-icon-btn" onClick={handleLogout} title="Sign Out">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
             </button>
           </div>
         ) : (
